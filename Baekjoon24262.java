@@ -10,8 +10,6 @@ public class Baekjoon24262 {
     public void answer() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        int n = Integer.parseInt(br.readLine());
-
         System.out.println(1);
         System.out.println(0);
 
