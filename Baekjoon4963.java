@@ -2,82 +2,85 @@ import java.util.*;
 import java.io.*;
 
 public class Baekjoon4963 {
+    private static int[][] matrix;
+    private static boolean[][] visited;
+    private static Stack<Position2D> stack;
+    private static final int[] dx = { 1, 1, -1, -1, 0, 0, 1, -1 };
+    private static final int[] dy = { 0, 1, 0, -1, 1, -1, -1, 1 };
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int answer = 0;
 
         while (true) {
-            // input: width height
-            int[] size = Arrays.stream(br.readLine().split("\\s+"))
-                    .mapToInt(Integer::parseInt)
-                    .toArray();
+            int[] size = parseInput(br);
             int width = size[0], height = size[1];
 
-            // 입력의 마지막 줄에는 0이 두개 주어진다.
-            if (width == 0 && height == 0) {
-                break;
-            }
+            if (width == 0 && height == 0)
+                break; // 종료 조건
 
             matrix = new int[height][width];
             visited = new boolean[height][width];
             stack = new Stack<>();
+            int islandCount = 0;
 
-            // matrix 초기화
+            // 지도 입력 받기
             for (int i = 0; i < height; i++) {
-                int[] input = Arrays.stream(br.readLine().split("\\s+"))
-                        .mapToInt(Integer::parseInt)
-                        .toArray();
-                for (int j = 0; j < width; j++) {
-                    matrix[i][j] = input[j];
-                }
+                matrix[i] = parseInput(br);
             }
 
+            // DFS로 섬 개수 탐색
             for (int i = 0; i < height; i++) {
                 for (int j = 0; j < width; j++) {
-                    if (!visited[i][j]) {
-                        stack.push(new Position2D(i, j));
-                        answer++;
+                    if (!visited[i][j] && matrix[i][j] == 1) {
+                        exploreIsland(i, j);
+                        islandCount++;
                     }
                 }
             }
-        }
 
-        System.out.println(answer);
+            System.out.println(islandCount);
+        }
     }
 
-    public static boolean[][] visited;
-    public static Stack<Position2D> stack;
-    public static int[] dirX = { 1, 1, -1, -1, 0, 0, 1, -1 };
-    public static int[] dirY = { 0, 1, 0, -1, 1, -1, -1, 1 };
-    public static int[][] matrix;
-
-    public static void dfs(int height, int width) {
-        visited[height][width] = true;
+    // DFS 탐색 수행 (스택 사용)
+    private static void exploreIsland(int y, int x) {
+        stack.push(new Position2D(y, x));
+        visited[y][x] = true;
 
         while (!stack.isEmpty()) {
-            Position2D curr = stack.pop();
+            Position2D current = stack.pop();
 
             for (int i = 0; i < 8; i++) {
-                int nextX = curr.width + dirX[i];
-                int nextY = curr.width + dirY[i];
+                int newX = current.x + dx[i];
+                int newY = current.y + dy[i];
 
-                if (isIn(nextX, nextY, matrix) && !visited[nextY][nextX] && matrix[nextY][nextX] == 1) {
-                    stack.push(new Position2D(nextY, nextX));
+                if (isValid(newY, newX) && !visited[newY][newX] && matrix[newY][newX] == 1) {
+                    visited[newY][newX] = true;
+                    stack.push(new Position2D(newY, newX));
                 }
             }
         }
     }
 
-    public static boolean isIn(int x, int y, int[][] matrix) {
-        return 0 <= x && x < matrix[0].length && 0 <= y && y < matrix.length;
+    // 입력값을 정수 배열로 변환하는 메서드
+    private static int[] parseInput(BufferedReader br) throws IOException {
+        return Arrays.stream(br.readLine().split("\\s+"))
+                .mapToInt(Integer::parseInt)
+                .toArray();
     }
 
-    public static class Position2D {
-        int width, height;
+    // 유효한 좌표인지 확인하는 메서드
+    private static boolean isValid(int y, int x) {
+        return y >= 0 && y < matrix.length && x >= 0 && x < matrix[0].length;
+    }
 
-        public Position2D(int height, int width) {
-            this.height = height;
-            this.width = width;
+    // 2차원 좌표를 나타내는 클래스
+    private static class Position2D {
+        int y, x;
+
+        public Position2D(int y, int x) {
+            this.y = y;
+            this.x = x;
         }
     }
 }
