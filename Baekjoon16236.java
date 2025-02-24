@@ -1,7 +1,7 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.LinkedList;
+import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
@@ -9,23 +9,26 @@ public class Baekjoon16236 {
 
     public static int N;
     public static int[][] matrix;
-    public static boolean[][] visited;
+    public static int[][] visited; // 방문 여부를 BFS 실행 횟수로 추적
     public static Queue<Position2D> queue;
-    public static int[] dx = { 0, -1, 1, 0 }; // 우, 상, 하, 좌 (순서 중요!)
+    public static int[] dx = { 0, -1, 1, 0 }; // 우, 상, 하, 좌
     public static int[] dy = { 1, 0, 0, -1 };
 
     public static int weightOfBabyShark = 2; // 아기 상어 크기
     public static int eatCount = 0; // 먹은 물고기 개수
     public static int answer = 0; // 이동 거리(시간)
+    public static int sharkX, sharkY; // 아기 상어 위치 저장
+    public static int bfsRunCount = 0; // BFS 실행 횟수 추적
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
 
             N = Integer.parseInt(br.readLine());
 
             matrix = new int[N][N];
-            visited = new boolean[N][N];
+            visited = new int[N][N]; // 방문 배열을 0으로 초기화 (BFS 실행 횟수로 활용)
+            queue = new ArrayDeque<>(); // `LinkedList` → `ArrayDeque` 변경 (더 빠름)
 
             StringTokenizer st;
 
@@ -33,6 +36,11 @@ public class Baekjoon16236 {
                 st = new StringTokenizer(br.readLine());
                 for (int j = 0; j < N; j++) {
                     matrix[i][j] = Integer.parseInt(st.nextToken());
+                    if (matrix[i][j] == 9) {
+                        sharkX = j;
+                        sharkY = i;
+                        matrix[i][j] = 0; // 상어 초기 위치를 0으로 설정
+                    }
                 }
             }
 
@@ -41,19 +49,14 @@ public class Baekjoon16236 {
             }
 
             System.out.println(answer);
-        } catch (IOException e) {
-            System.out.println("IOException");
         }
     }
 
     public static boolean solution() {
-        queue = new LinkedList<>();
-        Position2D currentPosition = getCurrentPosition();
-        if (currentPosition == null)
-            return false; // 아기 상어가 없으면 종료
-
-        visited[currentPosition.y][currentPosition.x] = true;
-        queue.add(currentPosition);
+        queue.clear();
+        bfsRunCount++; // BFS 실행 횟수 증가
+        queue.add(new Position2D(sharkX, sharkY, 0));
+        visited[sharkY][sharkX] = bfsRunCount;
 
         boolean fishEaten = false;
         int targetX = -1, targetY = -1, minDist = Integer.MAX_VALUE;
@@ -61,13 +64,17 @@ public class Baekjoon16236 {
         while (!queue.isEmpty()) {
             Position2D curr = queue.poll();
 
+            if (curr.dept > minDist)
+                break; // 이미 최단 거리의 물고기를 찾은 경우 탐색 중단
+
             for (int i = 0; i < 4; i++) {
                 int newX = curr.x + dx[i];
                 int newY = curr.y + dy[i];
                 int newDept = curr.dept + 1;
 
-                if (isInBound(newX, newY) && !visited[newY][newX] && weightOfBabyShark >= matrix[newY][newX]) {
-                    visited[newY][newX] = true;
+                if (isInBound(newX, newY) && visited[newY][newX] != bfsRunCount
+                        && weightOfBabyShark >= matrix[newY][newX]) {
+                    visited[newY][newX] = bfsRunCount;
                     queue.offer(new Position2D(newX, newY, newDept));
 
                     if (weightOfBabyShark > matrix[newY][newX] && matrix[newY][newX] > 0) {
@@ -94,33 +101,21 @@ public class Baekjoon16236 {
     }
 
     public static void eatFish(int x, int y) {
-        Position2D curr = getCurrentPosition();
-        matrix[curr.y][curr.x] = 0;
-
-        matrix[y][x] = 9;
+        // 아기 상어 이동
+        sharkX = x;
+        sharkY = y;
+        matrix[y][x] = 0;
         eatCount++;
 
+        // 크기 증가 체크
         if (eatCount == weightOfBabyShark) {
             weightOfBabyShark++;
             eatCount = 0;
         }
-
-        visited = new boolean[N][N];
     }
 
     public static boolean isInBound(int x, int y) {
         return 0 <= x && x < N && 0 <= y && y < N;
-    }
-
-    public static Position2D getCurrentPosition() {
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                if (matrix[i][j] == 9) {
-                    return new Position2D(j, i, 0);
-                }
-            }
-        }
-        return null;
     }
 
     public static class Position2D {
