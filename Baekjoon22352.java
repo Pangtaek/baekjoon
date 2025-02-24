@@ -1,7 +1,10 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
@@ -25,7 +28,9 @@ public class Baekjoon22352 {
         visited = new boolean[N][M];
 
         Position2D diffPosition = null;
+        int originalValue = -1, newValue = -1;
 
+        // 원본 배열 입력
         for (int i = 0; i < N; i++) {
             st = new StringTokenizer(br.readLine());
             for (int j = 0; j < M; j++) {
@@ -33,55 +38,36 @@ public class Baekjoon22352 {
             }
         }
 
-        boolean isFound = false;
-
+        // 변형된 배열 입력 및 차이 찾기
         for (int i = 0; i < N; i++) {
             st = new StringTokenizer(br.readLine());
             for (int j = 0; j < M; j++) {
                 mutation[i][j] = Integer.parseInt(st.nextToken());
 
-                if (!isFound && mutation[i][j] != origin[i][j]) {
-                    diffPosition = new Position2D(j, i, origin[i][j]);
-                    isFound = true;
+                if (diffPosition == null && mutation[i][j] != origin[i][j]) {
+                    diffPosition = new Position2D(j, i);
+                    originalValue = origin[i][j];
+                    newValue = mutation[i][j];
                 }
             }
         }
 
+        // 변형된 부분이 있다면 BFS 탐색 수행
         if (diffPosition != null) {
-            solution(diffPosition);
+            solution(diffPosition, originalValue, newValue);
         }
 
-        System.out.println("--- origin ---");
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                System.out.print(origin[i][j] + " ");
-            }
-            System.out.println();
-        }
-
-        System.out.println();
-
-        System.out.println("--- mutation ---");
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                System.out.print(mutation[i][j] + " ");
-            }
-            System.out.println();
-        }
-        
-        System.out.println();
-
-        System.out.println(answer());
+        // 최종 비교 후 결과 출력
+        System.out.println(Arrays.deepEquals(origin, mutation) ? "YES" : "NO");
     }
 
-    public static void solution(Position2D diffPosition) {
+    public static void solution(Position2D start, int originalValue, int newValue) {
+        Queue<Position2D> queue = new LinkedList<>();
+        List<Position2D> changedPositions = new ArrayList<>();
 
-        if (!isDifferent(diffPosition.x, diffPosition.y))
-            return;
-
-        Queue<Position2D> queue = new ArrayDeque<>();
-        visited[diffPosition.y][diffPosition.x] = true;
-        queue.offer(diffPosition);
+        queue.offer(start);
+        visited[start.y][start.x] = true;
+        changedPositions.add(start);
 
         while (!queue.isEmpty()) {
             Position2D curr = queue.poll();
@@ -90,48 +76,30 @@ public class Baekjoon22352 {
                 int newX = curr.x + dx[i];
                 int newY = curr.y + dy[i];
 
-                if (isInBound(newX, newY) && !visited[newY][newX] && mutation[newY][newX] == diffPosition.dept) {
+                if (isInBound(newX, newY) && !visited[newY][newX] && origin[newY][newX] == originalValue) {
                     visited[newY][newX] = true;
-                    queue.offer(new Position2D(newX, newY, curr.dept + 1));
+                    queue.offer(new Position2D(newX, newY));
+                    changedPositions.add(new Position2D(newX, newY));
                 }
             }
         }
 
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                if (visited[i][j]) {
-                    mutation[i][j] = diffPosition.dept;
-                }
-            }
+        // 탐색이 끝난 후 변경 적용
+        for (Position2D pos : changedPositions) {
+            origin[pos.y][pos.x] = newValue;
         }
-    }
-
-    public static String answer() {
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                if (origin[i][j] != mutation[i][j]) {
-                    return "NO";
-                }
-            }
-        }
-        return "YES";
     }
 
     public static boolean isInBound(int x, int y) {
         return 0 <= x && x < M && 0 <= y && y < N;
     }
 
-    public static boolean isDifferent(int diffX, int diffY) {
-        return diffX != -1 && diffY != -1;
-    }
-
     public static class Position2D {
-        int x, y, dept;
+        int x, y;
 
-        public Position2D(int x, int y, int dept) {
+        public Position2D(int x, int y) {
             this.x = x;
             this.y = y;
-            this.dept = dept;
         }
     }
 }
