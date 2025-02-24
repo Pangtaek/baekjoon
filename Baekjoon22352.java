@@ -41,7 +41,7 @@ public class Baekjoon22352 {
                 mutation[i][j] = Integer.parseInt(st.nextToken());
 
                 if (!isFound && mutation[i][j] != origin[i][j]) {
-                    diffPosition = new Position2D(j, i, mutation[i][j]);
+                    diffPosition = new Position2D(j, i, origin[i][j]);
                     isFound = true;
                 }
             }
@@ -50,6 +50,26 @@ public class Baekjoon22352 {
         if (diffPosition != null) {
             solution(diffPosition);
         }
+
+        System.out.println("--- origin ---");
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                System.out.print(origin[i][j] + " ");
+            }
+            System.out.println();
+        }
+
+        System.out.println();
+
+        System.out.println("--- mutation ---");
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                System.out.print(mutation[i][j] + " ");
+            }
+            System.out.println();
+        }
+        
+        System.out.println();
 
         System.out.println(answer());
     }
@@ -63,12 +83,8 @@ public class Baekjoon22352 {
         visited[diffPosition.y][diffPosition.x] = true;
         queue.offer(diffPosition);
 
-        int originalValue = origin[diffPosition.y][diffPosition.x];
-
         while (!queue.isEmpty()) {
             Position2D curr = queue.poll();
-
-            mutation[curr.y][curr.x] = originalValue; // 값을 변경하는 위치 수정
 
             for (int i = 0; i < 4; i++) {
                 int newX = curr.x + dx[i];
@@ -77,6 +93,14 @@ public class Baekjoon22352 {
                 if (isInBound(newX, newY) && !visited[newY][newX] && mutation[newY][newX] == diffPosition.dept) {
                     visited[newY][newX] = true;
                     queue.offer(new Position2D(newX, newY, curr.dept + 1));
+                }
+            }
+        }
+
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (visited[i][j]) {
+                    mutation[i][j] = diffPosition.dept;
                 }
             }
         }
