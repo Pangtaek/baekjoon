@@ -2,8 +2,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
@@ -28,111 +26,76 @@ public class Baekjoon3184 {
         visited = new boolean[R][C];
 
         for (int i = 0; i < R; i++) {
-            st = new StringTokenizer(br.readLine());
-
+            String line = br.readLine();
             for (int j = 0; j < C; j++) {
-                field[i][j] = st.nextToken().charAt(0);
+                field[i][j] = line.charAt(j);
             }
         }
 
         int[] answer = solution();
-
         System.out.println(answer[0] + " " + answer[1]);
     }
 
     public static int[] solution() {
-        int[] answer = { 0, 0 }; // 양, 늑대
+        int sheep = 0, wolf = 0;
 
         for (int i = 0; i < R; i++) {
             for (int j = 0; j < C; j++) {
                 if (!visited[i][j] && (field[i][j] == 'o' || field[i][j] == 'v')) {
-                    bfs(j, i);
+                    int[] result = bfs(j, i);
+                    sheep += result[0];
+                    wolf += result[1];
                 }
             }
         }
-
-        for (int i = 0; i < R; i++) {
-            for (int j = 0; j < C; j++) {
-                switch (field[i][j]) {
-                    case 'o':
-                        answer[0]++;
-                        break;
-                    case 'v':
-                        answer[1]++;
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-        return answer;
+        return new int[] { sheep, wolf };
     }
 
-    public static void bfs(int x, int y) {
+    public static int[] bfs(int x, int y) {
         Queue<Position2D> queue = new ArrayDeque<>();
-        List<Position2D> positionOfSheep = new ArrayList<>();
-        List<Position2D> positionOfWolf = new ArrayList<>();
-
         visited[y][x] = true;
         queue.offer(new Position2D(x, y));
 
+        int sheepCount = 0, wolfCount = 0;
+
+        if (field[y][x] == 'o')
+            sheepCount++;
+        if (field[y][x] == 'v')
+            wolfCount++;
+
         while (!queue.isEmpty()) {
             Position2D curr = queue.poll();
-
-            switch (whatAniaml(field[curr.y][curr.x])) {
-                case 1:
-                    positionOfSheep.add(curr);
-                    break;
-                case 2:
-                    positionOfWolf.add(curr);
-                    break;
-                default:
-                    break;
-            }
 
             for (int i = 0; i < 4; i++) {
                 int newX = curr.x + dx[i];
                 int newY = curr.y + dy[i];
 
-                boolean flag = isInBound(newX, newY) && visited[newY][newX] && field[newY][newX] != '#';
-
-                if (flag) {
+                if (isInBound(newX, newY) && !visited[newY][newX] && field[newY][newX] != '#') {
                     visited[newY][newX] = true;
                     queue.offer(new Position2D(newX, newY));
+
+                    if (field[newY][newX] == 'o')
+                        sheepCount++;
+                    if (field[newY][newX] == 'v')
+                        wolfCount++;
                 }
             }
         }
 
-        if (positionOfSheep.size() > positionOfWolf.size()) {
-            for (Position2D position : positionOfWolf) {
-                field[position.y][position.x] = '.';
-            }
-        } else {
-            for (Position2D position : positionOfSheep) {
-                field[position.y][position.x] = '.';
-            }
-        }
+        if (sheepCount > wolfCount)
+            wolfCount = 0;
+        else
+            sheepCount = 0;
+
+        return new int[] { sheepCount, wolfCount };
     }
 
-    public static int whatAniaml(char c) {
-        switch (c) {
-            case 'o':
-                return 1;
-            case 'v':
-                return 2;
-            default:
-                return 0;
-        }
-    }
-
-    public static boolean isInBound(int newX, int newY) {
-        return 0 <= newX && newX < C && 0 <= newY && newY < R;
+    public static boolean isInBound(int x, int y) {
+        return 0 <= x && x < C && 0 <= y && y < R;
     }
 
     public static class Position2D {
-        int x;
-        int y;
+        int x, y;
 
         public Position2D(int x, int y) {
             this.x = x;
