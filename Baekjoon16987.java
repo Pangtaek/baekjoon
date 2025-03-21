@@ -1,66 +1,73 @@
+aimport java.io.BufferedReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.StringTokenizer;
+import java.util.Arrays;
 
 public class Baekjoon16987 {
-
-    public static int N;
-    public static int[][] eggs;
-    public static int maxBrokenEggs = 0;
-
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        N = Integer.parseInt(br.readLine());
-        eggs = new int[N][2];
+        int N = Integer.parseInt(br.readLine());
+        Egg[] eggs = new Egg[N];
 
         for (int i = 0; i < N; i++) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
-            eggs[i][0] = Integer.parseInt(st.nextToken()); // 내구도
-            eggs[i][1] = Integer.parseInt(st.nextToken()); // 무게
+            int[] data = Arrays.stream(br.readLine().split("\\s+"))
+                    .mapToInt(Integer::parseInt)
+                    .toArray();
+            eggs[i] = new Egg(data[0], data[1]);
         }
 
-        dfs(0, 0);
-        System.out.println(maxBrokenEggs);
+        System.out.println(solution(eggs));
     }
 
-    public static void dfs(int current, int brokenCount) {
-        if (current == N) {
-            maxBrokenEggs = Math.max(maxBrokenEggs, brokenCount);
-            return;
+    public static int solution(Egg[] eggs) {
+        return dfs(eggs, 0, 0, 0);
+    }
+
+    public static int dfs(Egg[] eggs, int index, int count, int maxBrokenEggs) {
+        if (index == eggs.length) {
+            return Math.max(count, maxBrokenEggs);
         }
 
-        // 현재 계란이 이미 깨져있다면 다음 계란으로 넘어감
-        if (eggs[current][0] <= 0) {
-            dfs(current + 1, brokenCount);
-            return;
+        if (eggs[index].durability <= 0) {
+            return dfs(eggs, index + 1, count, maxBrokenEggs);
         }
 
-        boolean hit = false;
-        for (int i = 0; i < N; i++) {
-            if (i == current || eggs[i][0] <= 0)
-                continue;
+        boolean isHit = false;
+        for (int i = 0; i < eggs.length; i++) {
+            if (index == i || eggs[i].durability <= 0) continue;
 
-            hit = true;
-            eggs[current][0] -= eggs[i][1]; // 현재 계란 내구도 감소
-            eggs[i][0] -= eggs[current][1]; // 상대 계란 내구도 감소
+            isHit = true;
 
-            int newBrokenCount = brokenCount;
-            if (eggs[current][0] <= 0)
-                newBrokenCount++;
-            if (eggs[i][0] <= 0)
-                newBrokenCount++;
+            eggs[index].durability -= eggs[i].weight;
+            eggs[i].durability -= eggs[index].weight;
 
-            dfs(current + 1, newBrokenCount);
+            int broken = 0;
+            if (eggs[index].durability <= 0) broken++;
+            if (eggs[i].durability <= 0) broken++;
 
-            // 백트래킹 (상태 복원)
-            eggs[current][0] += eggs[i][1];
-            eggs[i][0] += eggs[current][1];
+            int result = dfs(eggs, index + 1, count + broken, maxBrokenEggs);
+            maxBrokenEggs = Math.max(maxBrokenEggs, result);
+
+            // 복구
+            eggs[index].durability += eggs[i].weight;
+            eggs[i].durability += eggs[index].weight;
         }
 
-        // 깨뜨릴 계란이 없는 경우 다음 계란으로 넘어감
-        if (!hit) {
-            dfs(current + 1, brokenCount);
+        if (!isHit) {
+            return dfs(eggs, index + 1, count, maxBrokenEggs);
+        }
+
+        return maxBrokenEggs;
+    }
+
+    public static class Egg {
+        public int durability;
+        public int weight;
+
+        public Egg(int durability, int weight) {
+            this.durability = durability;
+            this.weight = weight;
         }
     }
 }
