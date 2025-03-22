@@ -113,6 +113,7 @@ public class Baekjoon18809 {
                         && time[ny][nx] == curr.time + 1) {
                     color[ny][nx] = 'F';
                     flowers++;
+                }
             }
         }
 
