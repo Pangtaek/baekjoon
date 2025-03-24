@@ -4,6 +4,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 
 public class Baekjoon1182 {
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
@@ -14,43 +15,22 @@ public class Baekjoon1182 {
                 .mapToInt(Integer::parseInt)
                 .toArray();
 
-        int answer = solution(input[0], input[1], arr);
+        int answer = dfs(0, 0, arr, input[0], input[1]);
+
+        // 공집합 제외 처리 (S가 0일 경우, 아무것도 선택하지 않은 경우 포함됨)
+        if (input[1] == 0)
+            answer--;
 
         System.out.println(answer);
     }
 
-    public static int solution(int N, int S, int[] arr) {
-        int[] memeory = new int[N];
-
-        dfs(0, memeory, arr, N, S, 0);
-
-        return count;
-    }
-
-    public static int count = 0;
-
-    public static void dfs(int depth, int[] memeory, int[] arr, int N, int S, int start) {
-        if (depth == N) {
-            count++;
-            return;
+    public static int dfs(int index, int sum, int[] arr, int N, int S) {
+        if (index == N) {
+            return sum == S ? 1 : 0;
         }
 
-        int sum = 0;
-        for (int num : memeory) {
-            sum += num;
-
-            if (sum > S) {
-                return;
-            } else if (sum == S) {
-                count++;
-                return;
-            }
-        }
-
-        for (int i = start; i < N; i++) {
-            memeory[depth] = arr[i];
-            dfs(depth + 1, memeory, arr, N, S, i + 1);
-            memeory[depth] = 0;
-        }
+        // 현재 원소를 선택한 경우 + 선택하지 않은 경우의 합을 리턴
+        return dfs(index + 1, sum + arr[index], arr, N, S)
+                + dfs(index + 1, sum, arr, N, S);
     }
 }
