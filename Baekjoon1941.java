@@ -2,90 +2,101 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 
 public class Baekjoon1941 {
-    static char[][] matrix = new char[5][5];
-    static int[] selected = new int[7];
-    static boolean[] visited = new boolean[25];
-    static int answer = 0;
-
-    static int[] dx = { 1, -1, 0, 0 };
-    static int[] dy = { 0, 0, 1, -1 };
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        for (int i = 0; i < 5; i++) {
+        char[][] matrix = new char[5][5];
+
+        for (int row = 0; row < 5; row++) {
             String line = br.readLine();
-            for (int j = 0; j < 5; j++) {
-                matrix[i][j] = line.charAt(j);
+            for (int col = 0; col < 5; col++) {
+                matrix[row][col] = line.charAt(col);
             }
         }
 
-        combination(0, 0);
+        int answer = solution(matrix);
         System.out.println(answer);
     }
 
-    static void combination(int start, int depth) {
-        if (depth == 7) {
-            if (isValid()) {
-                answer++;
-            }
-            return;
-        }
-
-        for (int i = start; i < 25; i++) {
-            selected[depth] = i;
-            combination(i + 1, depth + 1);
-        }
+    public static int solution(char[][] matrix) {
+        return combination(0, new ArrayList<>(), matrix);
     }
 
-    static boolean isValid() {
-        boolean[] check = new boolean[25];
-        for (int i : selected)
-            check[i] = true;
-
-        int sCount = 0;
-        for (int i : selected) {
-            int x = i / 5;
-            int y = i % 5;
-            if (matrix[x][y] == 'S')
-                sCount++;
+    public static int combination(int index, List<Position2D> selected, char[][] matrix) {
+        if (selected.size() == 7) {
+            return isValid(selected, matrix) ? 1 : 0;
         }
-        if (sCount < 4)
-            return false;
 
-        return isConnected(check);
+        int count = 0;
+        for (int i = index; i < 25; i++) {
+            int y = i / 5;
+            int x = i % 5;
+
+            selected.add(new Position2D(x, y));
+            count += combination(i + 1, selected, matrix);
+            selected.remove(selected.size() - 1);
+        }
+
+        return count;
     }
 
-    static boolean isConnected(boolean[] check) {
-        boolean[] visited = new boolean[25];
-        Queue<Integer> queue = new ArrayDeque<>();
-        queue.offer(selected[0]);
-        visited[selected[0]] = true;
+    public static boolean isValid(List<Position2D> selected, char[][] matrix) {
+        int s = 0;
+
+        for (Position2D pos : selected) {
+            if (matrix[pos.y][pos.x] == 'S')
+                s++;
+        }
+
+        return s >= 4 && isConnected(selected);
+    }
+
+    public static boolean isConnected(List<Position2D> selected) {
+        boolean[][] isSelected = new boolean[5][5];
+        for (Position2D pos : selected) {
+            isSelected[pos.y][pos.x] = true;
+        }
+
+        boolean[][] visited = new boolean[5][5];
+        Queue<Position2D> queue = new ArrayDeque<>();
+        queue.offer(selected.get(0));
+        visited[selected.get(0).y][selected.get(0).x] = true;
 
         int count = 1;
+        int[] dx = { 1, -1, 0, 0 };
+        int[] dy = { 0, 0, 1, -1 };
 
         while (!queue.isEmpty()) {
-            int curr = queue.poll();
-            int x = curr / 5;
-            int y = curr % 5;
+            Position2D curr = queue.poll();
 
             for (int d = 0; d < 4; d++) {
-                int nx = x + dx[d];
-                int ny = y + dy[d];
-                int next = nx * 5 + ny;
+                int nx = curr.x + dx[d];
+                int ny = curr.y + dy[d];
 
-                if (nx < 0 || ny < 0 || nx >= 5 || ny >= 5)
-                    continue;
-                if (check[next] && !visited[next]) {
-                    visited[next] = true;
-                    queue.offer(next);
-                    count++;
+                if (0 <= nx && nx < 5 && 0 <= ny && ny < 5) {
+                    if (!visited[ny][nx] && isSelected[ny][nx]) {
+                        visited[ny][nx] = true;
+                        queue.offer(new Position2D(nx, ny));
+                        count++;
+                    }
                 }
             }
         }
 
         return count == 7;
+    }
+
+    public static class Position2D {
+        int x, y;
+
+        public Position2D(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
     }
 }
