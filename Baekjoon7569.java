@@ -14,6 +14,7 @@ public class Baekjoon7569 {
     public static boolean[][][] visited;
     public static List<Position3D> tomatoSpots = new ArrayList<>();
 
+    // 6방향 이동 (상, 하, 좌, 우, 위, 아래)
     public static final int[] dx = { 1, -1, 0, 0, 0, 0 };
     public static final int[] dy = { 0, 0, 1, -1, 0, 0 };
     public static final int[] dz = { 0, 0, 0, 0, 1, -1 };
@@ -21,23 +22,26 @@ public class Baekjoon7569 {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        int[] input = Arrays.stream(br.readLine().split("\\s+")).mapToInt(Integer::parseInt).toArray();
-
+        int[] input = Arrays.stream(br.readLine().split("\\s+"))
+                .mapToInt(Integer::parseInt)
+                .toArray();
         M = input[0];
         N = input[1];
         H = input[2];
 
-        box = new int[M][N][H];
-        visited = new boolean[M][N][H];
-        for (int i = 0; i < H; i++) {
-            for (int j = 0; j < M; j++) {
-                input = Arrays.stream(br.readLine().split("\\s+")).mapToInt(Integer::parseInt).toArray();
+        box = new int[H][N][M];
+        visited = new boolean[H][N][M];
 
-                for (int k = 0; k < N; k++) {
-                    box[j][k][i] = input[k];
+        for (int h = 0; h < H; h++) {
+            for (int n = 0; n < N; n++) {
+                int[] row = Arrays.stream(br.readLine().split("\\s+"))
+                        .mapToInt(Integer::parseInt)
+                        .toArray();
+                for (int m = 0; m < M; m++) {
+                    box[h][n][m] = row[m];
 
-                    if (box[j][k][i] == 1) {
-                        tomatoSpots.add(new Position3D(j, k, i));
+                    if (box[h][n][m] == 1) {
+                        tomatoSpots.add(new Position3D(m, n, h));
                     }
                 }
             }
@@ -47,13 +51,13 @@ public class Baekjoon7569 {
     }
 
     public static int bfs() {
-        int count = 0;
         Queue<Position3D> queue = new ArrayDeque<>();
-        int[][][] distance = new int[M][N][H];
+        int[][][] day = new int[H][N][M];
+        int maxDays = 0;
 
-        for (Position3D tomatoSpot : tomatoSpots) {
-            visited[tomatoSpot.y][tomatoSpot.x][tomatoSpot.z] = true;
-            queue.offer(tomatoSpot);
+        for (Position3D tomato : tomatoSpots) {
+            visited[tomato.z][tomato.y][tomato.x] = true;
+            queue.offer(tomato);
         }
 
         while (!queue.isEmpty()) {
@@ -64,26 +68,38 @@ public class Baekjoon7569 {
                 int ny = curr.y + dy[d];
                 int nz = curr.z + dz[d];
 
-                if (isInBounds(nx, ny, nz) && !visited[ny][nx][nz] && box[ny][nx][nz] == 0) {
-                    visited[ny][nx][nz] = true;
-                    distance[ny][nx][nz] = distance[curr.y][curr.x][curr.z] + 1;
-                    count = Math.max(count, distance[ny][nx][nz]);
+                boolean flag = isInBounds(nx, ny, nz)
+                        && !visited[nz][ny][nx]
+                        && box[nz][ny][nx] == 0;
+                if (flag) {
+                    visited[nz][ny][nx] = true;
+                    day[nz][ny][nx] = day[curr.z][curr.y][curr.x] + 1;
+                    maxDays = Math.max(maxDays, day[nz][ny][nx]);
                     queue.offer(new Position3D(nx, ny, nz));
                 }
             }
         }
 
-        return count;
+        // 익지 않은 토마토가 남아있는지 확인
+        for (int z = 0; z < H; z++) {
+            for (int y = 0; y < N; y++) {
+                for (int x = 0; x < M; x++) {
+                    if (box[z][y][x] == 0 && !visited[z][y][x]) {
+                        return -1;
+                    }
+                }
+            }
+        }
+
+        return maxDays;
     }
 
     public static boolean isInBounds(int x, int y, int z) {
-        return 0 <= x && x < N && 0 <= y && y < M && 0 <= z && z < H;
+        return 0 <= x && x < M && 0 <= y && y < N && 0 <= z && z < H;
     }
 
     public static class Position3D {
-        public int x;
-        public int y;
-        public int z;
+        public int x, y, z;
 
         public Position3D(int x, int y, int z) {
             this.x = x;
