@@ -5,22 +5,28 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.StringTokenizer;
 
 public class Baekjoon1753 {
     public static int V, E, K;
     public static List<List<Edge>> graph = new ArrayList<>();
-
     public static final int INF = Integer.MAX_VALUE;
 
     public static void main(String[] args) throws IOException {
         init();
         int[] distance = dijkstra();
 
-        System.out.println(distance);
+        for (int i = 1; i <= V; i++) {
+            if (distance[i] == INF) {
+                System.out.println("INF");
+            } else {
+                System.out.println(distance[i]);
+            }
+        }
     }
 
     public static int[] dijkstra() {
-        int[] distance = new int[V];
+        int[] distance = new int[V + 1];
         Arrays.fill(distance, INF);
         distance[K] = 0;
 
@@ -33,11 +39,11 @@ public class Baekjoon1753 {
             if (distance[curr.to] < curr.weight)
                 continue;
 
-            for (Edge edge : graph.get(curr.to)) {
-                int cost = distance[curr.to] + edge.weight;
-                if (cost < distance[edge.to]) {
-                    distance[edge.to] = cost;
-                    pq.offer(new Edge(edge.to, cost));
+            for (Edge neighborhood : graph.get(curr.to)) {
+                int cost = distance[curr.to] + neighborhood.weight;
+                if (cost < distance[neighborhood.to]) {
+                    distance[neighborhood.to] = cost;
+                    pq.offer(new Edge(neighborhood.to, cost));
                 }
             }
         }
@@ -47,29 +53,29 @@ public class Baekjoon1753 {
 
     public static void init() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
 
-        int[] tokens = Arrays.stream(br.readLine().split("\\s+")).mapToInt(Integer::parseInt).toArray();
-        V = tokens[0];
-        E = tokens[1];
+        V = Integer.parseInt(st.nextToken());
+        E = Integer.parseInt(st.nextToken());
         K = Integer.parseInt(br.readLine());
 
-        for (int i = 0; i < V; i++) {
+        for (int i = 0; i <= V; i++) {
             graph.add(new ArrayList<>());
         }
 
         for (int i = 0; i < E; i++) {
-            tokens = Arrays.stream(br.readLine().split("\\s+")).mapToInt(Integer::parseInt).toArray();
-            int from = tokens[0] - 1;
-            int to = tokens[1];
-            int weight = tokens[2];
+            st = new StringTokenizer(br.readLine());
+            int from = Integer.parseInt(st.nextToken());
+            int to = Integer.parseInt(st.nextToken());
+            int weight = Integer.parseInt(st.nextToken());
 
             graph.get(from).add(new Edge(to, weight));
         }
     }
 
     public static class Edge {
-        public int to;
-        public int weight;
+        int to;
+        int weight;
 
         public Edge(int to, int weight) {
             this.to = to;
