@@ -52,7 +52,7 @@ public class Baekjoon1504 {
         int v2 = tokens[1];
 
         int[] from1 = dijkstra(1);
-        int[] fromV1 = dij`kstra(v1);
+        int[] fromV1 = dijkstra(v1);
         int[] fromV2 = dijkstra(v2);
 
         int path1 = sumPath(from1[v1], fromV1[v2], fromV2[N]);
