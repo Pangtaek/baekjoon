@@ -83,10 +83,8 @@ public class Baekjoon9079 {
                 for (int i = 0; i < 3; ++i) {
                     st = new StringTokenizer(scanner.nextLine());
                     for (int j = 0; j < 3; ++j) {
-                        int val = 0;
                         num = num << 1;
                         if (st.nextToken().equals("H")) {
-                            val = 1;
                             num += 1;
                         }
                     }
