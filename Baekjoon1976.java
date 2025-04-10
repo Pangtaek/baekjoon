@@ -14,16 +14,19 @@ public class Baekjoon1976 {
         M = Integer.parseInt(br.readLine());
 
         connected = new boolean[N + 1][N + 1];
+        for (int i = 1; i <= N; i++) {
+            connected[i][i] = true; // 자기 자신은 항상 연결된 상태로 처리
+        }
 
         for (int i = 1; i <= N; i++) {
             int[] tokens = Arrays.stream(br.readLine().split("\\s+"))
                     .mapToInt(Integer::parseInt).toArray();
             for (int j = 1; j <= N; j++) {
-                connected[i][j] = tokens[j - 1] == 1;
+                connected[i][j] |= tokens[j - 1] == 1;
             }
         }
 
-        // 플로이드-워셜 알고리즘
+        // 플로이드-워셜
         for (int k = 1; k <= N; k++) {
             for (int i = 1; i <= N; i++) {
                 for (int j = 1; j <= N; j++) {
