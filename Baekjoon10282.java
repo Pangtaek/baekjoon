@@ -48,10 +48,10 @@ public class Baekjoon10282 {
             int[] distance = dijkstra(n, c, graph);
             int count = 0;
             int sum = 0;
-            for (int dist : distance) {
-                if (dist != Integer.MAX_VALUE) {
+            for (int i = 1; i <= n; i++) {
+                if (distance[i] != Integer.MAX_VALUE) {
                     count++;
-                    sum += dist;
+                    sum = Math.max(sum, distance[i]);
                 }
             }
 
