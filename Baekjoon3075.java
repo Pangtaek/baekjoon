@@ -6,6 +6,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.PriorityQueue;
 
+// 문제: Astromeeting
+// 링크: https://www.acmicpc.net/problem/3075
+// 풀이: 각각의 사람의 위치별 다익스트라 알고리즘을 통해 최단 거리르 계산한 후 가장 가까운 행성의 위치와 비용을 반환
+// 기타: 미해결
+
 public class Baekjoon3075 {
 
     public static final int INF = 100_000_000;
@@ -116,7 +121,7 @@ public class Baekjoon3075 {
                 totalCost += d * d;
             }
 
-            if (reachable && (totalCost < minCharge || (totalCost == minCharge && planet < bestPlanet))) {
+            if (reachable && (totalCost < minCharge)) {
                 bestPlanet = planet;
                 minCharge = totalCost;
             }
