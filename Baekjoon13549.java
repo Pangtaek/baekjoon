@@ -4,53 +4,63 @@ import java.io.InputStreamReader;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
-import java.util.StringTokenizer;
 
 public class Baekjoon13549 {
-    static final int MAX = 100001;
+    public static final int INF = Integer.MAX_VALUE;
+    public static final int MAX = 100_001;
+    public static int[] visited = new int[MAX];
+
+    public static class Node {
+        int position;
+        int time;
+
+        public Node(int position, int time) {
+            this.position = position;
+            this.time = time;
+        }
+    }
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
+        int[] tokens = Arrays.stream(br.readLine().split("\\s+")).mapToInt(Integer::parseInt).toArray();
 
-        int N = Integer.parseInt(st.nextToken());
-        int K = Integer.parseInt(st.nextToken());
+        int N = tokens[0]; // 시작 위치
+        int K = tokens[1]; // 목표 위치
 
-        int[] dist = new int[MAX];
-        Arrays.fill(dist, -1);
+        Arrays.fill(visited, INF);
+        bfs(N);
 
-        Deque<Integer> dq = new ArrayDeque<>();
-        dq.offer(N);
-        dist[N] = 0;
+        System.out.println(visited[K]);
+    }
 
-        while (!dq.isEmpty()) {
-            int curr = dq.poll();
+    public static void bfs(int start) {
+        Deque<Node> deque = new ArrayDeque<>();
+        deque.offer(new Node(start, 0));
+        visited[start] = 0;
 
-            if (curr == K)
-                break;
+        while (!deque.isEmpty()) {
+            Node curr = deque.poll();
 
-            // 순간이동: 0초
-            int next = curr * 2;
-            if (next < MAX && dist[next] == -1) {
-                dist[next] = dist[curr];
-                dq.offerFirst(next); // 0초이기 때문에 앞에 넣음
+            // 순간이동 (시간 0초)
+            int next = curr.position * 2;
+            if (next < MAX && visited[next] > curr.time) {
+                visited[next] = curr.time;
+                deque.offerFirst(new Node(next, curr.time));
             }
 
-            // -1 이동: 1초
-            next = curr - 1;
-            if (next >= 0 && dist[next] == -1) {
-                dist[next] = dist[curr] + 1;
-                dq.offerLast(next);
+            // 앞으로 이동 (시간 1초)
+            next = curr.position + 1;
+            if (next < MAX && visited[next] > curr.time + 1) {
+                visited[next] = curr.time + 1;
+                deque.offerLast(new Node(next, curr.time + 1));
             }
 
-            // +1 이동: 1초
-            next = curr + 1;
-            if (next < MAX && dist[next] == -1) {
-                dist[next] = dist[curr] + 1;
-                dq.offerLast(next);
+            // 뒤로 이동 (시간 1초)
+            next = curr.position - 1;
+            if (next >= 0 && visited[next] > curr.time + 1) {
+                visited[next] = curr.time + 1;
+                deque.offerLast(new Node(next, curr.time + 1));
             }
         }
-
-        System.out.println(dist[K]);
     }
 }
