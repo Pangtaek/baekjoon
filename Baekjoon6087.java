@@ -88,20 +88,25 @@ public class Baekjoon6087 {
                 int nx = curr.x + dx[d];
                 int ny = curr.y + dy[d];
 
+                // 배열 범위 확인
                 if (ny < 0 || ny >= H || nx < 0 || nx >= W)
                     continue;
+
+                // 벽 여부 확인
                 if (map[ny][nx] == '*')
                     continue;
 
+                // 반사판 설치 여부 확인
                 int newMirrorCount = curr.mirrorCount + (curr.dir == d ? 0 : 1);
 
                 if (dist[ny][nx][d] > newMirrorCount) {
                     dist[ny][nx][d] = newMirrorCount;
                     Point next = new Point(nx, ny, d, newMirrorCount);
 
+                    // 기존 방향 유지
                     if (curr.dir == d) {
                         deque.offerFirst(next);
-                    } else {
+                    } else { // 반사판을 이용해서 방향 변경
                         deque.offerLast(next);
                     }
                 }
