@@ -8,14 +8,14 @@ import java.util.Deque;
 import java.util.List;
 
 public class Baekjoon9376 {
-    static int[] dx = { -1, 1, 0, 0 };
-    static int[] dy = { 0, 0, -1, 1 };
+    public static int[] dx = { -1, 1, 0, 0 };
+    public static int[] dy = { 0, 0, -1, 1 };
 
-    static int H, W;
-    static char[][] map;
-    static List<Point> prisonerList;
+    public static int H, W;
+    public static char[][] map;
+    public static List<Point> prisonerList;
 
-    static class Point {
+    public static class Point {
         public int x;
         public int y;
 
