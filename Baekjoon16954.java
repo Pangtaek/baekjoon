@@ -1,85 +1,79 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
 public class Baekjoon16954 {
-    public static char[][] map = new char[8][8]; // 미로
-    public static boolean[][] visited = new boolean[8][8]; // 방문여부
-    public static List<Position2D> wallList = new ArrayList<>(); // 벽 위치 리스트
+    static char[][] map = new char[8][8];
+    static final int[] dx = { 0, 0, 0, -1, 1, -1, 1, -1, 1 };
+    static final int[] dy = { 0, -1, 1, 0, 0, -1, -1, 1, 1 };
 
-    // 9방향: 제자리, 상, 하, 좌, 우, 좌상, 우상, 좌하, 우하
-    public static final int[] dx = { 0, 0, 0, -1, 1, -1, 1, -1, 1 };
-    public static final int[] dy = { 0, -1, 1, 0, 0, -1, -1, 1, 1 };
-
-    public static class Position2D {
+    static class Position {
         public int x;
         public int y;
-        public int time;
 
-        public Position2D(int x, int y, int time) {
+        public Position(int x, int y) {
             this.x = x;
             this.y = y;
-            this.time = time;
         }
     }
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
-        // 지도 정보 입력
-        for (int col = 0; col < 8; col++) {
-            String input = br.readLine();
-
-            for (int row = 0; row < 8; row++) {
-                char c = input.charAt(row);
-                map[col][row] = c;
-
-                // 벽이면 리스트에 추가
-                if (c == '#') {
-                    wallList.add(new Position2D(row, col, 0));
-                }
+        for (int y = 0; y < 8; y++) {
+            String line = br.readLine();
+            for (int x = 0; x < 8; x++) {
+                map[y][x] = line.charAt(x);
             }
         }
 
-        bfs();
-
-        System.out.println(visited[0][7] ? 1 : 0);
+        System.out.println(bfs());
     }
 
-    public static void bfs() {
-        Queue<Position2D> queue = new LinkedList<>();
-        queue.offer(new Position2D(0, 7, 0)); // 왼쪽 아래(0, 7)
-        visited[7][0] = true;
+    public static int bfs() {
+        Queue<Position> queue = new LinkedList<>();
+        queue.offer(new Position(7, 0)); // (y=7, x=0)
 
         while (!queue.isEmpty()) {
-            Position2D curr = queue.poll();
+            int size = queue.size();
+            boolean[][] visited = new boolean[8][8]; // 턴마다 visited 초기화
 
-            for (int d = 0; d < 9; d++) {
-                int nx = curr.x + dx[d];
-                int ny = curr.y + dy[d];
+            for (int i = 0; i < size; i++) {
+                Position curr = queue.poll();
 
-                // OutOfBounds
-                if (nx < 0 || nx >= 8 || ny < 0 || ny >= 8) {
-                    continue;
+                if (map[curr.x][curr.y] == '#')
+                    continue; // 현재 위치에 벽이 오면 사망
+
+                if (curr.x == 0 && curr.y == 7)
+                    return 1; // 목표 도달
+
+                for (int d = 0; d < 9; d++) {
+                    int nx = curr.x + dx[d];
+                    int ny = curr.y + dy[d];
+
+                    if (nx < 0 || nx >= 8 || ny < 0 || ny >= 8)
+                        continue; // ArrayIndexOfBounds
+
+                    if (map[nx][ny] == '#')
+                        continue; // 다음 위치에 벽이 오면 사망
+
+                    if (visited[nx][ny])
+                        continue; // 이미 방문했으면 패스
+
+                    visited[nx][ny] = true;
+                    queue.offer(new Position(nx, ny));
                 }
-
-                // 이동할 위치가 벽인 경우
-                if (map[ny][nx] == '#') {
-                    continue;
-                }
-
-                visited[ny][nx] = true;
-                queue.offer(new Position2D(nx, ny, curr.time + 1));
             }
+
+            moveWall(); // 턴마다 벽 내려옴
         }
+
+        return 0; // 탈출 불가
     }
 
-    public static void moveWalls() {
-        for (int y = 7; y >= 0; y++) {
+    public static void moveWall() {
+        for (int y = 7; y >= 0; y--) {
             for (int x = 0; x < 8; x++) {
                 if (map[y][x] == '#') {
                     map[y][x] = '.';
@@ -89,6 +83,10 @@ public class Baekjoon16954 {
                     }
                 }
             }
+        }
+
+        for (int i = 0; i < 8; i++) {
+            map[0][i] = '.';
         }
     }
 }
