@@ -39,8 +39,9 @@ public class Baekjoon16954 {
                 map[col][row] = c;
 
                 // 벽이면 리스트에 추가
-                if (c == '#')
+                if (c == '#') {
                     wallList.add(new Position2D(row, col, 0));
+                }
             }
         }
 
@@ -62,24 +63,30 @@ public class Baekjoon16954 {
                 int ny = curr.y + dy[d];
 
                 // OutOfBounds
-                if (nx < 0 || nx >= 8 || ny < 0 || ny >= 8)
+                if (nx < 0 || nx >= 8 || ny < 0 || ny >= 8) {
                     continue;
-
-                boolean isValid = true;
-                for (Position2D wall : wallList) {
-                    int wallX = wall.x;
-                    int wallY = wall.y + curr.time;
-
-                    // 벽의 위치와 동일한 경우
-                    if (nx == wallX && ny == wallY) {
-                        isValid = false;
-                        break;
-                    }
                 }
 
-                if (isValid) {
-                    visited[ny][nx] = true;
-                    queue.offer(new Position2D(nx, ny, curr.time + 1));
+                // 이동할 위치가 벽인 경우
+                if (map[ny][nx] == '#') {
+                    continue;
+                }
+
+                visited[ny][nx] = true;
+                queue.offer(new Position2D(nx, ny, curr.time + 1));
+            }
+        }
+    }
+
+    public static void moveWalls() {
+        for (int y = 7; y >= 0; y++) {
+            for (int x = 0; x < 8; x++) {
+                if (map[y][x] == '#') {
+                    map[y][x] = '.';
+
+                    if (y + 1 < 8) {
+                        map[y + 1][x] = '#';
+                    }
                 }
             }
         }
