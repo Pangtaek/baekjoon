@@ -5,63 +5,78 @@ import java.io.InputStreamReader;
 public class Baekjoon7682 {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        String input = br.readLine();
         StringBuilder answer = new StringBuilder();
 
-        while (true) {
-            String input = br.readLine();
-            if (input.equals("end"))
-                break;
-
-            char[] board = input.toCharArray();
-
-            if (isValid(board)) {
-                answer.append("valid\n");
+        while (!input.equals("end")) {
+            if (isValidCount(input.toCharArray()) && isValidGameOver(input.toCharArray())) {
+                answer.append("valid");
             } else {
-                answer.append("invalid\n");
+                answer.append("invalid");
             }
+            answer.append("\n");
+            input = br.readLine();
         }
 
-        System.out.print(answer);
+        System.out.println(answer);
     }
 
-    public static boolean isValid(char[] board) {
+    // X가 O보다 1개 더 많은 상태이거나 무승부(9칸 모두 채움) 여부 확인
+    public static boolean isValidCount(char[] input) {
         int xCount = 0;
         int oCount = 0;
 
-        for (char c : board) {
-            if (c == 'X')
-                xCount++;
-            else if (c == 'O')
-                oCount++;
+        for (char c : input) {
+            xCount += (c == 'X') ? 1 : 0;
+            oCount += (c == 'O') ? 1 : 0;
         }
 
-        boolean xWin = isTicTacToe(board, 'X');
-        boolean oWin = isTicTacToe(board, 'O');
+        if ((xCount + oCount) == 9) {
+            return xCount == oCount + 1; // 무승부 시에도 선공이 마지막에 두어야 함
+        }
 
-        // 1. X와 O가 동시에 이김 → 불가능
+        return xCount == oCount + 1 || xCount == oCount;
+    }
+
+    // 게임 종료 조건의 타당성 판단
+    public static boolean isValidGameOver(char[] input) {
+        int xCount = 0;
+        int oCount = 0;
+
+        for (char c : input) {
+            xCount += (c == 'X') ? 1 : 0;
+            oCount += (c == 'O') ? 1 : 0;
+        }
+
+        boolean xWin = isTicTacToe(input, 'X');
+        boolean oWin = isTicTacToe(input, 'O');
+
+        // 둘 다 이긴 경우는 불가능
         if (xWin && oWin)
             return false;
 
-        // 2. X가 이겼으면 X는 O보다 1개 더 많아야 함
+        // X가 이겼으면 X가 한 수 더 많아야 함
         if (xWin)
             return xCount == oCount + 1;
 
-        // 3. O가 이겼으면 X와 O의 개수는 같아야 함
+        // O가 이겼으면 수가 같아야 함
         if (oWin)
             return xCount == oCount;
 
-        // 4. 누가 이기지 않았으면 칸이 모두 채워져야 함 (무승부)
-        return xCount + oCount == 9;
+        // 아무도 이기지 않았으면 모든 칸이 채워졌는지 확인 (무승부)
+        return (xCount + oCount == 9);
     }
 
-    public static boolean isTicTacToe(char[] b, char c) {
-        return (b[0] == c && b[1] == c && b[2] == c) || // 1행
-                (b[3] == c && b[4] == c && b[5] == c) || // 2행
-                (b[6] == c && b[7] == c && b[8] == c) || // 3행
-                (b[0] == c && b[3] == c && b[6] == c) || // 1열
-                (b[1] == c && b[4] == c && b[7] == c) || // 2열
-                (b[2] == c && b[5] == c && b[8] == c) || // 3열
-                (b[0] == c && b[4] == c && b[8] == c) || // \ 대각선
-                (b[2] == c && b[4] == c && b[6] == c); // / 대각선
+    // 틱택토 완성 여부 확인
+    public static boolean isTicTacToe(char[] input, char c) {
+        return (input[0] == c && input[1] == c && input[2] == c) || // 1행
+                (input[3] == c && input[4] == c && input[5] == c) || // 2행
+                (input[6] == c && input[7] == c && input[8] == c) || // 3행
+                (input[0] == c && input[3] == c && input[6] == c) || // 1열
+                (input[1] == c && input[4] == c && input[7] == c) || // 2열
+                (input[2] == c && input[5] == c && input[8] == c) || // 3열
+                (input[0] == c && input[4] == c && input[8] == c) || // \ 대각선
+                (input[2] == c && input[4] == c && input[6] == c); // / 대각선
     }
 }
