@@ -16,6 +16,15 @@ public class Baekjoon2931 {
             this.x = x;
             this.y = y;
         }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+
+            sb.append("x: ").append(this.x).append(" y: ").append(this.y).append("\n");
+
+            return sb.toString();
+        }
     }
 
     public static void main(String[] args) throws IOException {
@@ -50,10 +59,66 @@ public class Baekjoon2931 {
 
         // 해커가 지운 위치 찾기
         Position2D missedPosition = findMissedPosition(map, spots[0]);
-        
+        if (missedPosition == null) {
+            missedPosition = findMissedPosition(map, spots[1]); // Z에서도 시도
+        }
+
         answer.append(missedPosition.y + 1).append(" ").append(missedPosition.x + 1).append(" ");
 
+        // 해킹된 위치 주변의 파이프 좌표 배열
+        Position2D[] aroundPipes = findAroundPipes(map, missedPosition);
+
+        // for (int i = 0; i < 4; i++) {
+        //     System.out.println(aroundPipes[i]);
+        // }
+
+        if (aroundPipes[0] != null && aroundPipes[1] != null && aroundPipes[2] != null && aroundPipes[3] != null) {
+            answer.append("+"); // 모든 방향에 파이프가 있다. => [+]
+        } else if (aroundPipes[0] != null && aroundPipes[1] != null) {
+            answer.append("|"); // 상, 하 방향에 파이프가 있다. => [|]
+        } else if (aroundPipes[2] != null && aroundPipes[3] != null) {
+            answer.append("-"); // 좌, 우 방향에 파이프가 있다. => [-]
+        } else if (aroundPipes[0] != null && aroundPipes[2] != null) {
+            answer.append("3"); // 상, 좌 방향에 파이프가 있다. => [┘]
+        } else if (aroundPipes[0] != null && aroundPipes[3] != null) {
+            answer.append("2"); // 상, 우 방향에 파이프가 있다. => [└]
+        } else if (aroundPipes[1] != null && aroundPipes[2] != null) {
+            answer.append("4"); // 하, 좌 방향에 파이프가 있다. => [┐]
+        } else if (aroundPipes[1] != null && aroundPipes[3] != null) {
+            answer.append("1"); // 하, 우 방향에 파이프가 있다. => [┌]
+        }
+
         return answer;
+    }
+
+    public static Position2D[] findAroundPipes(char[][] map, Position2D position) {
+        Position2D[] aroundPipes = new Position2D[4]; // 0=상, 1=하, 2=좌, 3=우
+
+        // 상 (현재 위치 기준으로 위에 있는 파이프가 아래(1) 방향으로 연결되어 있어야 함)
+        if (position.y - 1 >= 0 &&
+                isConnected(map[position.y - 1][position.x], 1)) {
+            aroundPipes[0] = new Position2D(position.x, position.y - 1);
+        }
+
+        // 하
+        if (position.y + 1 < map.length &&
+                isConnected(map[position.y + 1][position.x], 0)) {
+            aroundPipes[1] = new Position2D(position.x, position.y + 1);
+        }
+
+        // 좌
+        if (position.x - 1 >= 0 &&
+                isConnected(map[position.y][position.x - 1], 3)) {
+            aroundPipes[2] = new Position2D(position.x - 1, position.y);
+        }
+
+        // 우
+        if (position.x + 1 < map[0].length &&
+                isConnected(map[position.y][position.x + 1], 2)) {
+            aroundPipes[3] = new Position2D(position.x + 1, position.y);
+        }
+
+        return aroundPipes;
     }
 
     public static Position2D findMissedPosition(char[][] map, Position2D start) {
@@ -71,7 +136,7 @@ public class Baekjoon2931 {
 
                 if (nx < 0 || nx >= map[0].length || ny < 0 || ny >= map.length)
                     continue;
-                    
+
                 if (visited[ny][nx])
                     continue;
 
