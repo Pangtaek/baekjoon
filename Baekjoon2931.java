@@ -34,6 +34,7 @@ public class Baekjoon2931 {
         }
 
         // 규칙 추가, 좌 상 우 하 기준 0~4, 피해야하는 값 추가
+        @SuppressWarnings("unchecked")
         HashSet<Character>[] setArr = new HashSet[4];
         for (int i = 0; i < 4; i++) {
             HashSet<Character> set = new HashSet<>();
