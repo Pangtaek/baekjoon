@@ -10,7 +10,8 @@ public class Baekjoon2931 {
     public static final int[] dy = { -1, 1, 0, 0 };
 
     public static class Position2D {
-        public int x, y;
+        public int x;
+        public int y;
 
         public Position2D(int x, int y) {
             this.x = x;
@@ -19,11 +20,7 @@ public class Baekjoon2931 {
 
         @Override
         public String toString() {
-            StringBuilder sb = new StringBuilder();
-
-            sb.append("x: ").append(this.x).append(" y: ").append(this.y).append("\n");
-
-            return sb.toString();
+            return String.format("x: %d y: %d%n", x, y);
         }
     }
 
@@ -69,7 +66,7 @@ public class Baekjoon2931 {
         Position2D[] aroundPipes = findAroundPipes(map, missedPosition);
 
         // for (int i = 0; i < 4; i++) {
-        //     System.out.println(aroundPipes[i]);
+        // System.out.println(aroundPipes[i]);
         // }
 
         if (aroundPipes[0] != null && aroundPipes[1] != null && aroundPipes[2] != null && aroundPipes[3] != null) {
