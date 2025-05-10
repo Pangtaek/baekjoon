@@ -67,7 +67,7 @@ public class Baekjoon17836 {
             answer = Math.min(answer, res2);
 
         return answer <= T ? answer : -1;
-    }
+    }    
 
     // 벽을 통과하지 않고 공주에게 도달하는 최단시간
     public static int normalBfs() {
@@ -127,7 +127,7 @@ public class Baekjoon17836 {
 
         Hero gramHero = null;
 
-        // Step 1: 그람 획득
+        // Step 1: 그람 획득까지 BFS (벽 통과 불가)
         while (!queue.isEmpty()) {
             Hero curr = queue.poll();
 
@@ -135,7 +135,7 @@ public class Baekjoon17836 {
             if (curr.time > T)
                 continue;
 
-            // 목표 지점 확인
+            // 그람 획득 여부 확인
             if (map[curr.y][curr.x] == 2) {
                 gramHero = curr;
                 break;
@@ -148,11 +148,11 @@ public class Baekjoon17836 {
                 // 배열 범위 확인
                 if (nx < 0 || nx >= M || ny < 0 || ny >= N)
                     continue;
-
-                // 벽 확인: 벽으로는 이동 불가능
+                
+                // 벽 확인: 벽으로 이동 불가능
                 if (map[ny][nx] == 1)
                     continue;
-
+            
                 // 방문 여부 확인
                 if (visited[ny][nx] != -1)
                     continue;
@@ -163,47 +163,15 @@ public class Baekjoon17836 {
             }
         }
 
-        // 그람 획득 여부 확인
         if (gramHero == null)
-            return -1;
+            return -1; // 그람 획득 실패
 
-        // Step 2: 벽 통과 가능 상태로 다시 BFS
-        int[][] visitedAfter = new int[N][M];
-        for (int[] row : visitedAfter)
-            Arrays.fill(row, -1);
+        // Step 2: 거리 계산으로 최단시간 추정
+        int dx = M - 1 - gramHero.x;
+        int dy = N - 1 - gramHero.y;
+        int totalTime = gramHero.time + dx + dy;
 
-        Queue<Hero> afterQ = new ArrayDeque<>();
-        afterQ.offer(new Hero(gramHero.x, gramHero.y, gramHero.time));
-        visitedAfter[gramHero.y][gramHero.x] = gramHero.time;
-
-        while (!afterQ.isEmpty()) {
-            Hero curr = afterQ.poll();
-
-            // 제한시간 확인
-            if (curr.time > T)
-                continue;
-
-            // 목표 지점 확인
-            if (curr.x == M - 1 && curr.y == N - 1)
-                return curr.time;
-
-            for (int d = 0; d < 4; d++) {
-                int nx = curr.x + dxdy[d][0];
-                int ny = curr.y + dxdy[d][1];
-
-                // 배열 범위 확인
-                if (nx < 0 || nx >= M || ny < 0 || ny >= N)
-                    continue;
-
-                // 방문 여부 확인
-                if (visitedAfter[ny][nx] != -1)
-                    continue;
-
-                visitedAfter[ny][nx] = curr.time + 1;
-                afterQ.offer(new Hero(nx, ny, curr.time + 1));
-            }
-        }
-
-        return -1;
+        return totalTime <= T ? totalTime : -1;
     }
+    
 }
