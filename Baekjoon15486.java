@@ -3,7 +3,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.StringTokenizer;
+import java.util.Arrays;
 
 public class Baekjoon15486 {
     public static void main(String[] args) throws IOException {
@@ -16,9 +16,11 @@ public class Baekjoon15486 {
         int[] dp = new int[N + 2]; // i일까지 얻을 수 있는 최대 이익
 
         for (int i = 1; i <= N; i++) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
-            T[i] = Integer.parseInt(st.nextToken());
-            P[i] = Integer.parseInt(st.nextToken());
+            int[] tokens = Arrays.stream(br.readLine().split(" "))
+                    .mapToInt(Integer::parseInt)
+                    .toArray();
+            T[i] = tokens[0];
+            P[i] = tokens[1];
         }
 
         for (int i = 1; i <= N + 1; i++) {
