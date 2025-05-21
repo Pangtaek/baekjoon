@@ -17,12 +17,12 @@ public class Baekjoon10844 {
             dp[1][i] = 1;
         }
 
-        for (int i = 2; i <= N; i++) {
-            for (int j = 0; j <= 9; j++) {
-                long fromLeft = (j > 0) ? dp[i - 1][j - 1] : 0;
-                long fromRight = (j < 9) ? dp[i - 1][j + 1] : 0;
+        for (int len = 2; len <= N; len++) {
+            for (int lastNum = 0; lastNum <= 9; lastNum++) {
+                long fromLeft = (lastNum > 0) ? dp[len - 1][lastNum - 1] : 0;
+                long fromRight = (lastNum < 9) ? dp[len - 1][lastNum + 1] : 0;
 
-                dp[i][j] = (fromLeft + fromRight) % MOD;
+                dp[len][lastNum] = (fromLeft + fromRight) % MOD;
             } 
         }        
 
