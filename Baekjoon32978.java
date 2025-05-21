@@ -11,6 +11,8 @@ public class Baekjoon32978 {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
+        
+        @SuppressWarnings("unused")
         int N = Integer.parseInt(br.readLine());
         String[] originalIngredients = br.readLine().split(" ");
         String[] selectedIngredients = br.readLine().split(" ");
