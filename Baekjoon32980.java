@@ -14,7 +14,7 @@ public class Baekjoon32980 {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
-        int totalPrice = 0;
+        long totalPrice = 0;
         int N = Integer.parseInt(br.readLine());
         String[] trashList = new String[N];
 
@@ -24,15 +24,15 @@ public class Baekjoon32980 {
         }
 
         // 일반쓰레기를 제외한 쓰레기의 단위 크기당 비용이 공백으로 구분되어 순서대로 주어진다.
-        int[] recyclableCosts = Arrays.stream(br.readLine().split(" "))
-                .mapToInt(Integer::parseInt)
+        long[] recyclableCosts = Arrays.stream(br.readLine().split(" "))
+                .mapToLong(Long::parseLong)
                 .toArray();
 
         // 다음줄에 일반쓰레기의 단위 크기당 비용이 주어진다.
-        int generalWasteCostPerUnit = Integer.parseInt(br.readLine());
+        long generalWasteCostPerUnit = Long.parseLong(br.readLine());
 
         // 쓰레기의 이니셜별 단위 크기당 비용을 Map형태로 저장한다.
-        Map<Character, Integer> costPerType = new TreeMap<>();
+        Map<Character, Long> costPerType = new TreeMap<>();
         for (int i = 0; i < recyclableTypes.length; i++) {
             costPerType.put(recyclableTypes[i], recyclableCosts[i]);
         }
@@ -57,15 +57,15 @@ public class Baekjoon32980 {
                 }
             }
 
-            int generalCost = calculateGeneralWaste(size, costPerType.get('O'));
-            int recycleCost = isRecyclable // 분비배출 가능 여부
+            long generalCost = calculateGeneralWaste(size, costPerType.get('O'));
+            long recycleCost = isRecyclable // 분비배출 가능 여부
                     ? calculateSeparateTheTrash(size, costPerType.get(type)) // 참
                     : Integer.MAX_VALUE; // 거짓
 
             totalPrice += Math.min(generalCost, recycleCost);
         }
 
-        bw.write(Integer.toString(totalPrice));
+        bw.write(Long.toString(totalPrice));
         bw.newLine();
 
         bw.flush();
@@ -73,11 +73,11 @@ public class Baekjoon32980 {
         br.close();
     }
 
-    static int calculateSeparateTheTrash(int size, int costPerUnit) {
+    static long calculateSeparateTheTrash(int size, long costPerUnit) {
         return size * costPerUnit;
     }
 
-    static int calculateGeneralWaste(int size, int costPerUnit) {
+    static long calculateGeneralWaste(int size, long costPerUnit) {
         return size * costPerUnit;
     }
 }
