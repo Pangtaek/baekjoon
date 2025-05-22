@@ -60,7 +60,7 @@ public class Baekjoon32980 {
             long generalCost = calculateGeneralWaste(size, costPerType.get('O'));
             long recycleCost = isRecyclable // 분비배출 가능 여부
                     ? calculateSeparateTheTrash(size, costPerType.get(type)) // 참
-                    : Integer.MAX_VALUE; // 거짓
+                    : Long.MAX_VALUE; // 거짓
 
             totalPrice += Math.min(generalCost, recycleCost);
         }
