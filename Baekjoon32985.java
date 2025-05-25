@@ -3,85 +3,60 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.Arrays;
-import java.util.stream.IntStream;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
 public class Baekjoon32985 {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
-        int N = Integer.parseInt(br.readLine()); // 노드의 개수
-        boolean[][] graph = new boolean[N][N]; // 그래프
-        int answer = 0;
+        int N = Integer.parseInt(br.readLine());
 
+        List<List<Integer>> tree = new ArrayList<>();
+        for (int i = 0; i < N; i++) {
+            tree.add(new ArrayList<>());
+        }
+
+        // 입력
         for (int i = 0; i < N - 1; i++) {
-            int[] tokens = Arrays.stream(br.readLine().split(" "))
-                    .mapToInt(Integer::parseInt)
-                    .toArray();
-            int from = tokens[0];
-            int to = tokens[1];
-
-            graph[from][to] = true;
+            String[] line = br.readLine().split(" ");
+            int u = Integer.parseInt(line[0]);
+            int v = Integer.parseInt(line[1]);
+            tree.get(u).add(v);
+            tree.get(v).add(u);
         }
 
-        for (int from = 1; from < N; from++) {
-            int result = 1;
-            boolean[][] clone = clone(graph);
+        int[] depth = new int[N];
+        boolean[] visited = new boolean[N];
 
-            for (int to = 0; to < N; to++) {
-                clone[from][to] = false;
+        Queue<Integer> queue = new LinkedList<>();
+        queue.offer(0);
+        visited[0] = true;
+
+        while (!queue.isEmpty()) {
+            int curr = queue.poll();
+            for (int next : tree.get(curr)) {
+                if (!visited[next]) {
+                    visited[next] = true;
+                    depth[next] = depth[curr] + 1;
+                    queue.offer(next);
+                }
             }
-
-            if (!dfsHandler(from, clone)) {
-                result = 0;
-            }
-
-            answer = (answer << 1) | result;
         }
 
-        bw.write(Integer.toBinaryString(answer));
-        bw.newLine();        
+        StringBuilder sb = new StringBuilder();
+        for (int i = N - 1; i >= 1; i--) {
+            sb.append((N - 1 + depth[i]) % 2);
+        }
 
+        // 출력
+        bw.write(sb.toString());
+        bw.newLine();
         bw.flush();
         bw.close();
         br.close();
-    }
-
-    static boolean dfsHandler(int target, boolean[][] graph) {
-        boolean[] visited = new boolean[graph.length];
-
-        dfs(0, graph, visited);
-
-        if(visited[target]) {
-            return true;
-        }
-
-        return false;
-    }
-
-    static void dfs(int start, boolean[][] graph, boolean[] visited) {
-        visited[start] = true;
-
-        int[] nexts = IntStream.range(0, graph[start].length)
-                .filter(i -> graph[start][i])
-                .toArray();
-
-        for (int next : nexts) {
-            if (!visited[next]) {
-                dfs(next, graph, visited);
-            }
-        }
-    }
-
-    static boolean[][] clone(boolean[][] origin) {
-        int len = origin.length;
-        boolean[][] clone = new boolean[len][len];
-
-        for (int i = 0; i < len; i++) {
-            clone[i] = origin[i].clone();
-        }
-
-        return clone;
     }
 }
