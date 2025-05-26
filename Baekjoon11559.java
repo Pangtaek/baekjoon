@@ -142,8 +142,7 @@ public class Baekjoon11559 {
             // 아래부터 위로 채우기
             for (int row = HEIGHT - 1; row >= 0; row--) {
                 if (!dq.isEmpty()) {
-                    newMap[row][col] = dq.getFirst();
-                    dq.removeFirst();
+                    newMap[row][col] = dq.pollFirst();
                 } else {
                     newMap[row][col] = '.';
                 }
