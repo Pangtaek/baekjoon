@@ -15,10 +15,10 @@ public class Baekjoon11559 {
     static final int WIDTH = 6;
 
     static class Position2D {
-        public int x;
-        public int y;
+        int x;
+        int y;
 
-        public Position2D(int x, int y) {
+        Position2D(int x, int y) {
             this.x = x;
             this.y = y;
         }
@@ -37,6 +37,10 @@ public class Baekjoon11559 {
                 map[row][col] = line.charAt(col);
             }
         }
+
+        int result = solution(map);
+        bw.write(Integer.toString(result));
+        bw.newLine();
 
         bw.flush();
         bw.close();
