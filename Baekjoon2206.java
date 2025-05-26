@@ -8,11 +8,8 @@ import java.util.Arrays;
 import java.util.Deque;
 
 public class Baekjoon2206 {
-    static final int[][] dxdy = {
-            { 0, 1 }, // 상
-            { 0, -1 }, // 하
-            { -1, 0 }, // 좌
-            { 1, 0 } // 우
+    static final int[][] directions = {
+            { 0, 1 }, { 0, -1 }, { -1, 0 }, { 1, 0 } // 상, 하, 좌, 우
     };
 
     public static void main(String[] args) throws IOException {
@@ -43,7 +40,7 @@ public class Baekjoon2206 {
 
     public static int solution(int N, int M, int[][] map) {
         Deque<Player> dq = new ArrayDeque<>();
-        boolean[][][] visited = new boolean[N][M][2]; // visited[y][x][0]: 벽 X, [1]: 벽 O
+        boolean[][][] visited = new boolean[N][M][2]; // visited[y][x][0:안부숨, 1:부숨]
 
         dq.offer(new Player(0, 0, 1, false));
         visited[0][0][0] = true; // 시작지점은 벽을 부수지 않고 방문
@@ -56,7 +53,7 @@ public class Baekjoon2206 {
                 return curr.distance;
             }
 
-            for (int[] d : dxdy) {
+            for (int[] d : directions) {
                 int nx = curr.x + d[0];
                 int ny = curr.y + d[1];
 
@@ -83,7 +80,7 @@ public class Baekjoon2206 {
 
         return -1; // 도달할 수 없는 경우
     }
-    
+
     static class Player extends Position2D {
         public boolean isBreak;
         public int distance;
