@@ -82,12 +82,12 @@ public class Baekjoon11559 {
     }
 
     // 연결된 뿌요를 BFS로 탐색
-    static List<Position2D> getConnectedPuyos(char[][] map, Position2D start, boolean[][] globalVisited) {
+    static List<Position2D> getConnectedPuyos(char[][] map, Position2D start, boolean[][] visited) {
         Deque<Position2D> dq = new ArrayDeque<>();
         List<Position2D> positionList = new ArrayList<>();
         char color = map[start.y][start.x];
 
-        globalVisited[start.y][start.x] = true;
+        visited[start.y][start.x] = true;
         dq.offer(start);
         positionList.add(start);
 
@@ -100,10 +100,10 @@ public class Baekjoon11559 {
 
                 if (nx < 0 || ny < 0 || nx >= WIDTH || ny >= HEIGHT)
                     continue;
-                if (globalVisited[ny][nx])
+                if (visited[ny][nx])
                     continue;
                 if (map[ny][nx] == color) {
-                    globalVisited[ny][nx] = true;
+                    visited[ny][nx] = true;
                     Position2D next = new Position2D(nx, ny);
                     dq.offer(next);
                     positionList.add(next);
