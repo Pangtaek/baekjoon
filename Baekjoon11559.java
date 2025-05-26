@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Baekjoon11559 {
 
-    static final int[][] DIRECTIONS = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 } }; // 상, 하, 좌, 우
+    static final int[][] DIRECTIONS = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 } };
     static final int HEIGHT = 12;
     static final int WIDTH = 6;
 
@@ -28,11 +28,10 @@ public class Baekjoon11559 {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
-        char[][] map = new char[12][6];
+        char[][] map = new char[HEIGHT][WIDTH];
 
         for (int row = 0; row < HEIGHT; row++) {
             String line = br.readLine();
-
             for (int col = 0; col < WIDTH; col++) {
                 map[row][col] = line.charAt(col);
             }
@@ -51,9 +50,9 @@ public class Baekjoon11559 {
         int answer = 0;
 
         while (true) {
-            List<Position2D> puyoList = isGameOver(map);
+            List<Position2D> puyoList = findAllPuyosToBurst(map);
 
-            if (puyoList == null || puyoList.isEmpty())
+            if (puyoList.isEmpty())
                 break;
 
             map = doPuyo(map, puyoList);
@@ -63,16 +62,34 @@ public class Baekjoon11559 {
         return answer;
     }
 
-    // 연결된 뿌요 위치 리스트를 반환하는 메서드
-    static List<Position2D> getConnectedPuyos(char[][] map, Position2D pos) {
+    // 여러 그룹을 한 번에 찾아서 터뜨릴 리스트 생성
+    static List<Position2D> findAllPuyosToBurst(char[][] map) {
         boolean[][] visited = new boolean[HEIGHT][WIDTH];
+        List<Position2D> list = new ArrayList<>();
+
+        for (int row = 0; row < HEIGHT; row++) {
+            for (int col = 0; col < WIDTH; col++) {
+                if (map[row][col] != '.' && !visited[row][col]) {
+                    List<Position2D> puyoPositionList = getConnectedPuyos(map, new Position2D(col, row), visited);
+                    if (puyoPositionList.size() >= 4) {
+                        list.addAll(puyoPositionList);
+                    }
+                }
+            }
+        }
+
+        return list;
+    }
+
+    // 연결된 뿌요를 BFS로 탐색
+    static List<Position2D> getConnectedPuyos(char[][] map, Position2D start, boolean[][] globalVisited) {
         Deque<Position2D> dq = new ArrayDeque<>();
         List<Position2D> positionList = new ArrayList<>();
-        char color = map[pos.y][pos.x];
+        char color = map[start.y][start.x];
 
-        visited[pos.y][pos.x] = true;
-        dq.offer(pos);
-        positionList.add(pos);
+        globalVisited[start.y][start.x] = true;
+        dq.offer(start);
+        positionList.add(start);
 
         while (!dq.isEmpty()) {
             Position2D curr = dq.poll();
@@ -83,10 +100,10 @@ public class Baekjoon11559 {
 
                 if (nx < 0 || ny < 0 || nx >= WIDTH || ny >= HEIGHT)
                     continue;
-                if (visited[ny][nx])
+                if (globalVisited[ny][nx])
                     continue;
                 if (map[ny][nx] == color) {
-                    visited[ny][nx] = true;
+                    globalVisited[ny][nx] = true;
                     Position2D next = new Position2D(nx, ny);
                     dq.offer(next);
                     positionList.add(next);
@@ -95,36 +112,38 @@ public class Baekjoon11559 {
         }
 
         return positionList;
-    }
+    }    
 
-    static char[][] doPuyo(char[][] map, List<Position2D> puyoList) {
+    // 뿌요 터뜨리고 아래로 떨어뜨림
+    static char[][] doPuyo(char[][] map, List<Position2D> puyoPositionList) {
         char[][] newMap = new char[HEIGHT][WIDTH];
 
-        // 1. 원본 맵 복사
+        // 원본 복사
         for (int row = 0; row < HEIGHT; row++) {
             newMap[row] = map[row].clone();
         }
 
-        // 2. 터진 뿌요를 'X'로 표시
-        for (Position2D pos : puyoList) {
-            newMap[pos.y][pos.x] = 'X';
+        // 터진 뿌요 제거
+        for (Position2D pos : puyoPositionList) {
+            newMap[pos.y][pos.x] = '.';
         }
 
-        // 3. 각 열마다 위에서부터 아래로 스캔하여 뿌요를 아래로 내리기
+        // 각 열마다 처리
         for (int col = 0; col < WIDTH; col++) {
             Deque<Character> dq = new ArrayDeque<>();
 
-            // 밑에서부터 뿌요를 수집
+            // 밑에서부터 위로 뿌요 수집
             for (int row = HEIGHT - 1; row >= 0; row--) {
-                if (newMap[row][col] != '.' && newMap[row][col] != 'X') {
+                if (newMap[row][col] != '.') {
                     dq.offer(newMap[row][col]);
                 }
             }
 
-            // 뿌요를 당기기
+            // 아래부터 위로 채우기
             for (int row = HEIGHT - 1; row >= 0; row--) {
                 if (!dq.isEmpty()) {
                     newMap[row][col] = dq.getFirst();
+                    dq.removeFirst();
                 } else {
                     newMap[row][col] = '.';
                 }
@@ -132,21 +151,5 @@ public class Baekjoon11559 {
         }
 
         return newMap;
-    }    
-
-    // 터트릴 뿌요가 없는 경우 -> 게임오버
-    static List<Position2D> isGameOver(char[][] map) {
-        for (int row = HEIGHT - 1; row >= 0; row--) {
-            for (int col = WIDTH - 1; col >= 0; col--) {
-                if (map[row][col] != '.') {
-                    List<Position2D> puyoList = getConnectedPuyos(map, new Position2D(col, row));
-                    if (puyoList.size() >= 4) {
-                        return puyoList;
-                    }
-                }
-            }
-        }
-
-        return null; // 게임오버
     }
 }
