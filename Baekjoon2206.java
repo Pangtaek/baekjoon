@@ -30,7 +30,7 @@ public class Baekjoon2206 {
             String input = br.readLine();
 
             for (int col = 0; col < M; col++) {
-                map[row][col] = input.charAt(col);
+                map[row][col] = Character.getNumericValue(input.charAt(col));
             }
         }
 
@@ -43,43 +43,45 @@ public class Baekjoon2206 {
 
     public static int solution(int N, int M, int[][] map) {
         Deque<Player> dq = new ArrayDeque<>();
-        Player start = new Player(0, 0, 0, true);
-    
-        dq.offer(start);
+        boolean[][][] visited = new boolean[N][M][2]; // visited[y][x][0]: 벽 X, [1]: 벽 O
 
-        while (dq.isEmpty()) {
+        dq.offer(new Player(0, 0, 1, false));
+        visited[0][0][0] = true; // 시작지점은 벽을 부수지 않고 방문
+
+        while (!dq.isEmpty()) {
             Player curr = dq.poll();
 
-            if (curr.x == M && curr.y == N) {
+            // 도착지에 도달했을 경우
+            if (curr.x == M - 1 && curr.y == N - 1) {
                 return curr.distance;
             }
 
             for (int[] d : dxdy) {
-                int nx = curr.x + d[0]; // 다음 x 좌표
-                int ny = curr.y + d[1]; // 다음 y 좌표
+                int nx = curr.x + d[0];
+                int ny = curr.y + d[1];
 
-                if (nx < 0 || nx >= M || ny < 0 || ny >= N) {
-                    continue; // 배열 범위 위반
-                }
+                if (nx < 0 || ny < 0 || nx >= M || ny >= N)
+                    continue;
 
+                // 벽이 아닌 경우
                 if (map[ny][nx] == 0) {
-                    // 이동할 수 있는 곳
-                    Player next = new Player(nx, ny, curr.distance + 1, curr.isBreak);
-                    dq.offer(next);
-                } else if (map[ny][nx] == 1) {
-                    // 벽
-                    if (curr.isBreak) {
-                        // 벽을 부수고 이동
-                        Player next = new Player(nx, ny, curr.distance + 1, false);
-                        dq.offerLast(next);
-                    } else {
-                        continue;
+                    int broken = curr.isBreak ? 1 : 0;
+                    if (!visited[ny][nx][broken]) {
+                        visited[ny][nx][broken] = true;
+                        dq.offer(new Player(nx, ny, curr.distance + 1, curr.isBreak));
+                    }
+                }
+                // 벽인 경우
+                else {
+                    if (!curr.isBreak && !visited[ny][nx][1]) {
+                        visited[ny][nx][1] = true;
+                        dq.offer(new Player(nx, ny, curr.distance + 1, true)); // 벽을 부순 상태로 이동
                     }
                 }
             }
         }
 
-        return -1; // 도착 실패
+        return -1; // 도달할 수 없는 경우
     }
     
     static class Player extends Position2D {
@@ -88,7 +90,7 @@ public class Baekjoon2206 {
 
         public Player(int x, int y, int distance, boolean isBreak) {
             super(x, y);
-            this.isBreak = true;
+            this.isBreak = isBreak;
             this.distance = distance;
         }
     }
