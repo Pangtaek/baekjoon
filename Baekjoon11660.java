@@ -19,14 +19,16 @@ public class Baekjoon11660 {
         int[][] dp = new int[N + 1][N + 1];
 
         for (int row = 1; row <= N; row++) {
-            table[row] = new int[N + 1];
             tokens = Arrays.stream(br.readLine().split("\\s+"))
                     .mapToInt(Integer::parseInt)
                     .toArray();
+
             for (int col = 1; col <= N; col++) {
                 table[row][col] = tokens[col - 1];
-                dp[row][col] = dp[row - 1][col] + dp[row][col - 1]
-                        - dp[row - 1][col - 1] + table[row][col];
+                dp[row][col] = dp[row - 1][col]
+                        + dp[row][col - 1]
+                        - dp[row - 1][col - 1]
+                        + table[row][col];
             }
         }
 
@@ -42,7 +44,7 @@ public class Baekjoon11660 {
             int result = dp[x2][y2] // 전체 영역
                     - dp[x1 - 1][y2] // 위쪽 제외
                     - dp[x2][y1 - 1] // 왼쪽 제외
-                    + dp[x1 - 1][y1 - 1]; // 중복 제거 (위+왼쪽 교차 영역) 
+                    + dp[x1 - 1][y1 - 1]; // 중복 제거 (위+왼쪽 교차 영역)
 
             bw.write(Integer.toString(result));
             bw.newLine();
