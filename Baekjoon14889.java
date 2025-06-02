@@ -38,6 +38,7 @@ public class Baekjoon14889 {
         if (depth == N / 2) {
             int diff = calculateDifference(selected);
             answer = Math.min(answer, diff);
+
             return;
         }
 
@@ -51,19 +52,19 @@ public class Baekjoon14889 {
     }
 
     static int calculateDifference(boolean[] selected) {
-        int start = 0;
-        int link = 0;
+        int startTeam = 0;
+        int linkTeam = 0;
 
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
                 if (selected[i] && selected[j]) {
-                    start += S[i][j];
+                    startTeam += S[i][j];
                 } else if (!selected[i] && !selected[j]) {
-                    link += S[i][j];
+                    linkTeam += S[i][j];
                 }
             }
         }
 
-        return Math.abs(start - link);
+        return Math.abs(startTeam - linkTeam);
     }
 }
