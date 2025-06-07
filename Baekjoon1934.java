@@ -16,32 +16,26 @@ public class Baekjoon1934 {
             int[] tokens = Arrays.stream(br.readLine().split(" "))
                     .mapToInt(Integer::parseInt)
                     .toArray();
-            int A = Math.min(tokens[0], tokens[1]);
-            int B = Math.max(tokens[0], tokens[1]);
 
-            int originA = A;
-            int originB = B;
-            int indexA = 1;
-            int indexB = 1;
+            int A = tokens[0];
+            int B = tokens[1];
 
-            while (true) {
-                if (A == B) {
-                    bw.write(Integer.toString(A));
-                    bw.newLine();
-                    
-                    break;
-                }
-
-                if (A < B) {
-                    A = originA * indexA++;
-                } else {
-                    B = originB * indexB++;
-                }
-            }   
+            int lcm = A * B / gcd(A, B);
+            bw.write(Integer.toString(lcm));
+            bw.newLine();
         }
 
         bw.flush();
         bw.close();
         br.close();
+    }
+
+    static int gcd(int a, int b) {
+        while (b != 0) {
+            int tmp = a % b;
+            a = b;
+            b = tmp;
+        }
+        return a;
     }
 }
