@@ -15,7 +15,7 @@ public class Baekjoon1934 {
         while (TC-- > 0) {
             int[] tokens = Arrays.stream(br.readLine().split(" "))
                     .mapToInt(Integer::parseInt)
-                    .toArray();
+                    .toArray();fd
 
             int A = tokens[0];
             int B = tokens[1];
