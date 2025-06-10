@@ -1,57 +1,80 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.Arrays;
-import java.util.StringTokenizer;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Baekjoon1759 {
+
+    static final char[] VOWELS = { 'a', 'e', 'i', 'o', 'u' };
+
+    static int L;
+    static int C;
+    static char[] chars;
+    static List<Character> password = new LinkedList<>();
+    static BufferedWriter bw;
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
+        bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
-        int L = Integer.parseInt(st.nextToken());
-        int C = Integer.parseInt(st.nextToken());
-        char[] data = br.readLine().replace(" ", "").toCharArray();
+        int[] tokens = Arrays.stream(br.readLine().split(" "))
+                .mapToInt(Integer::parseInt)
+                .toArray();
+        L = tokens[0];
+        C = tokens[1];
+        chars = br.readLine().replaceAll(" ", "").toCharArray();
 
-        System.out.println(solution(L, C, data));
+        Arrays.sort(chars); // 사전 순 정렬
+
+        dfs(0, 0);
+
+        bw.flush();
+        bw.close();
+        br.close();
     }
 
-    public static String solution(int L, int C, char[] data) {
-        StringBuilder answer = new StringBuilder();
-
-        Arrays.sort(data); // 사전순 정렬
-        dfs(0, L, new char[L], 0, C, data, answer);
-
-        return answer.toString();
-    }
-
-    public static void dfs(int currentDepth, int maximumDepth, char[] arr, int start, int C, char[] data,
-            StringBuilder memory) {
-        if (currentDepth == maximumDepth) {
-            if (isValid(arr)) {
-                memory.append(arr).append("\n");
+    static void dfs(int start, int depth) throws IOException {
+        if (depth == L) {
+            if (isValid(password)) {
+                for (char ch : password) {
+                    bw.write(ch);
+                }
+                bw.newLine();
             }
             return;
         }
 
         for (int i = start; i < C; i++) {
-            arr[currentDepth] = data[i];
-            dfs(currentDepth + 1, maximumDepth, arr, i + 1, C, data, memory);
+            password.add(chars[i]);
+            dfs(i + 1, depth + 1);
+            password.remove(password.size() - 1);
         }
     }
 
-    public static boolean isValid(char[] arr) {
-        int jaum = 0;
-        int moum = 0;
+    static boolean isValid(List<Character> password) {
+        int vowels = 0;
+        int consonants = 0;
 
-        for (char c : arr) {
-            if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u') {
-                moum++;
-            } else {
-                jaum++;
+        for (char c : password) {
+            boolean isVowel = false;
+            for (char v : VOWELS) {
+                if (c == v) {
+                    isVowel = true;
+                    break;
+                }
             }
+
+            if (isVowel)
+                vowels++;
+            else
+                consonants++;
         }
 
-        return jaum >= 2 && moum >= 1;
+        return vowels >= 1 && consonants >= 2;
     }
+
 }
