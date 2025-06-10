@@ -44,7 +44,7 @@ public class Baekjoon6987 {
                 }
             }
 
-            if (totalMatches > 30) { // 31경기 이상 진행한 경우
+            if (totalMatches != 30) { // 이번 시즌에 30경기를 진행하지 않은 경우
                 bw.write(Integer.toString(0) + " "); // 불가능
                 continue;
             }
