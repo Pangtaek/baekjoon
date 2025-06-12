@@ -1,68 +1,75 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
 
 public class Baekjoon1987 {
 
-    private static Character[][] map;
-    private static int maxCount = 0; // 최대 경로 길이
-    private static int[] dx = {-1, 1, 0, 0};
-    private static int[] dy = {0, 0, -1, 1};
+    static final int[][] DIRECTIONS = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 } }; // 상, 하, 좌, 우
 
-    public static void main(String[] args) {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
+    static int R;
+    static int C;
+    static char[][] board;
+    static boolean[] visited = new boolean[26];
+    static int count = 1;
 
-            int height = Integer.parseInt(st.nextToken()); // 세로
-            int weight = Integer.parseInt(st.nextToken()); // 가로
+    static class Position2D {
+        int x;
+        int y;
 
-            map = new Character[height][weight];
-
-            for (int i = 0; i < height; i++) {
-                char[] line = br.readLine().toCharArray();
-                for (int j = 0; j < line.length; j++) {
-                    map[i][j] = line[j];
-                }
-            }
-
-            // DFS 시작
-            Set<Character> used = new HashSet<>();
-            used.add(map[0][0]); // 시작 알파벳 추가
-            List<String> path = new ArrayList<>(); // 이동 경로를 저장할 리스트
-            path.add(String.valueOf(map[0][0])); // 시작 알파벳 추가
-            dfs(0, 0, 1, used, path); // 시작 위치와 초기 경로 길이
-
-            System.out.println(maxCount);
-
-        } catch (IOException e) {
-            System.out.println("유근웅");
+        Position2D(int x, int y) {
+            this.x = x;
+            this.y = y;
         }
     }
 
-    private static void dfs(int x, int y, int count, Set<Character> used, List<String> path) {
-        maxCount = Math.max(maxCount, count); // 최대 경로 길이 업데이트
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
-        for (int k = 0; k < 4; k++) {
-            int nx = x + dx[k];
-            int ny = y + dy[k];
+        int[] tokens = Arrays.stream(br.readLine().split(" "))
+                .mapToInt(Integer::parseInt)
+                .toArray();
+        R = tokens[0];
+        C = tokens[1];
+        board = new char[R][C];
 
-            if (checkBound(nx, ny) && !used.contains(map[nx][ny])) {
-                // 다음 위치로 이동
-                used.add(map[nx][ny]); // 현재 알파벳 추가
-                path.add(String.valueOf(map[nx][ny])); // 이동 경로에 추가
-                dfs(nx, ny, count + 1, used, path); // 재귀 호출
-                // 백트래킹
-                used.remove(map[nx][ny]); // 알파벳 제거
-                path.remove(path.size() - 1); // 경로에서 마지막 알파벳 제거
+        for (int row = 0; row < R; row++) {
+            char[] chars = br.readLine().toCharArray();
+            for (int column = 0; column < C; column++) {
+                board[row][column] = chars[column];
             }
         }
 
-        // 현재 경로를 출력
-//        System.out.println("현재 경로: " + path);
+        visited[board[0][0] - 'A'] = true;
+        dfs(new Position2D(0, 0), 1);
+
+        bw.write(Integer.toString(count));
+        bw.newLine();
+
+        bw.flush();
+        bw.close();
+        br.close();
     }
 
-    private static boolean checkBound(int i, int j) {
-        return i >= 0 && i < map.length && j >= 0 && j < map[i].length;
+    private static void dfs(Position2D pos, int depth) {
+        count = Math.max(count, depth);
+
+        for (int[] d : DIRECTIONS) {
+            int nx = pos.x + d[0];
+            int ny = pos.y + d[1];
+
+            if (nx < 0 || nx >= C || ny < 0 || ny >= R)
+                continue;
+
+            int alphaIndex = board[ny][nx] - 'A';
+            if (!visited[alphaIndex]) {
+                visited[alphaIndex] = true;
+                dfs(new Position2D(nx, ny), depth + 1);
+                visited[alphaIndex] = false;
+            }
+        }
     }
 }
