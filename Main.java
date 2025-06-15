@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 
-public class Baekjoon2933 {
+public class Main {
 
     private static int[][] DIRECTIONS = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 } }; // 상, 하, 좌, 우
 
@@ -90,36 +90,36 @@ public class Baekjoon2933 {
         int R = cave.length;
         int C = cave[0].length;
 
-        List<Position2D> mineralList = new ArrayList<>();
+        List<Position2D> groundMinerals = new ArrayList<>();
 
         // 미네랄이 시작하는 좌표를 찾는다.
         for (int i = 0; i < C; i++) {
             if (cave[R - 1][i] == 'x') {
-                mineralList.add(new Position2D(i, R - 1));
+                groundMinerals.add(new Position2D(i, R - 1));
             }
         }
 
         boolean[][] visited = new boolean[R][C];
         Queue<Position2D> queue = new ArrayDeque<>();
-        for (int i = 0; i < mineralList.size(); i++) {
-            Position2D pos = mineralList.get(i);
+        for (int i = 0; i < groundMinerals.size(); i++) {
+            Position2D pos = groundMinerals.get(i);
             visited[pos.y][pos.x] = true;
             queue.offer(pos);
         }
 
         bfs(queue, cave, visited);
 
-        List<Position2D> clusterList = new ArrayList<>();
+        List<Position2D> floatingCluster = new ArrayList<>();
         for (int row = 0; row < R; row++) {
             for (int column = 0; column < C; column++) {
                 if (cave[row][column] == 'x' && !visited[row][column]) { // 공중에 미네랄이 떠있는 경우
-                    clusterList.add(new Position2D(column, row));
+                    floatingCluster.add(new Position2D(column, row));
                 }
             }
         }
 
-        if (!clusterList.isEmpty()) {
-            dropMineral(cave, clusterList);
+        if (!floatingCluster.isEmpty()) {
+            dropFloatingCluster(cave, floatingCluster);
         }
     }
 
@@ -134,15 +134,11 @@ public class Baekjoon2933 {
                 int nx = curr.x + d[0];
                 int ny = curr.y + d[1];
 
-                if (nx < 0 || nx >= C || ny < 0 || ny >= R) { // 배열 범위를 초과한 경우
-                    continue;
-                }
+                boolean flag = (nx < 0 || nx >= C || ny < 0 || ny >= R) // 동굴 범위를 초과한 경우
+                        || cave[ny][nx] != 'x' // 미네랄이 아닌 경우
+                        || visited[ny][nx]; // 이미 방문한 경우
 
-                if (cave[ny][nx] != 'x') { // 미네랄이 아닌 경우
-                    continue;
-                }
-
-                if (visited[ny][nx]) { // 이미 방문한 경우
+                if (flag) {
                     continue;
                 }
 
@@ -152,30 +148,44 @@ public class Baekjoon2933 {
         }
     }
 
-    /** 공중에 떠 있는 미네랄 클러스터(clusterList)를 중력 방향(아래)으로 떨어뜨린다. */
-    private static void dropMineral(char[][] cave, List<Position2D> clusterList) {
+    private static void dropFloatingCluster(char[][] cave, List<Position2D> floatingCluster) {
         int R = cave.length;
-        // int C = cave[0].length;
 
-        /* 1) 클러스터 블록을 잠시 제거해 충돌 판단을 쉽게 만든다. */
-        for (Position2D p : clusterList) {
+        // 1. 클러스터 블록을 cave에서 제거
+        for (Position2D p : floatingCluster) {
             cave[p.y][p.x] = '.';
         }
 
-        /* 2) 클러스터 전체가 떨어질 수 있는 최소 거리(minFall) 계산 */
-        int minFall = R; // 충분히 큰 값으로 시작
-        for (Position2D cluster : clusterList) {
-            int ny = cluster.y + 1; // 바로 아래칸부터 검사
+        // 2. 최소 낙하 거리 계산
+        int minFall = R;
+        for (Position2D p : floatingCluster) {
+            int nx = p.x;
+            int ny = p.y + 1;
             int fall = 0;
-            while (ny < R && cave[ny][cluster.x] == '.') {
+
+            while (ny < R && cave[ny][nx] == '.') {
                 fall++;
                 ny++;
             }
-            minFall = Math.min(minFall, fall); // 모든 블록 중 가장 작은 거리
+
+            // cave[ny][nx]가 떠있는 클러스터에 포함되어 있다면 그건 충돌 아님
+            boolean isConflict = true;
+            for (Position2D other : floatingCluster) {
+                if (other.x == nx && other.y == ny) {
+                    isConflict = false;
+                    break;
+                }
+            }
+
+            if (isConflict) {
+                minFall = Math.min(minFall, fall);
+            }
         }
 
-        for (Position2D cluster : clusterList) {
-            cave[cluster.y + minFall][cluster.x] = 'x';
+        // 3. y 큰 순서대로 다시 cave에 삽입 (덮어쓰기 방지)
+        floatingCluster.sort((a, b) -> b.y - a.y);
+        for (Position2D p : floatingCluster) {
+            cave[p.y + minFall][p.x] = 'x';
         }
     }
 }
