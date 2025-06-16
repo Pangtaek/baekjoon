@@ -1,33 +1,40 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.StringTokenizer;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
 
 public class Baekjoon12865 {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
-        StringTokenizer st = new StringTokenizer(br.readLine());
-
-        int N = Integer.parseInt(st.nextToken());
-        int K = Integer.parseInt(st.nextToken());
-
-        // 무게마다 가치를 저장할 배열
-        int dp[] = new int[K + 1];
+        int[] tokens = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
+        int N = tokens[0]; // 물품의 수
+        int K = tokens[1]; // 최대 무게
+        int[] W = new int[N]; // 무게
+        int[] V = new int[N]; // 가치
 
         for (int i = 0; i < N; i++) {
-            StringTokenizer st2 = new StringTokenizer(br.readLine());
+            tokens = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
+            W[i] = tokens[0];
+            V[i] = tokens[1];
+        }
 
-            int W = Integer.parseInt(st2.nextToken());
-            int V = Integer.parseInt(st2.nextToken());
+        int[] dp = new int[K + 1]; // dp[w]: w 무게로 얻을 수 있는 최대 가치
 
-            // 무게 뒤에서 부터 현재 해당 무게의 가치와
-            // 현재 물건을 더했을 때 해당 무게와 같아지는 가치 중
-            // 더 큰 가치를 해당 무게의 가치로 저장
-            for (int j = K; j >= W; j--) {
-                dp[j] = Math.max(dp[j], dp[j - W] + V);
+        for (int i = 0; i < N; i++) {
+            for (int j = K; j >= W[i]; j--) {
+                dp[j] = Math.max(dp[j], dp[j - W[i]] + V[i]);
             }
         }
 
-        System.out.println(dp[K]);
+        bw.write(Integer.toString(dp[K]));
+        bw.newLine();
+        
+        bw.flush();
+        bw.close();
+        br.close();
     }
 }
