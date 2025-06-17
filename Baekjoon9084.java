@@ -13,6 +13,7 @@ public class Baekjoon9084 {
         int T = Integer.parseInt(br.readLine());
 
         while (T-- > 0) {
+            @SuppressWarnings("unused")
             int N = Integer.parseInt(br.readLine());
             int[] coins = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
             int target = Integer.parseInt(br.readLine());
