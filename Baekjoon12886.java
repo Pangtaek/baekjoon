@@ -76,6 +76,9 @@ public class Baekjoon12886 {
     }
 
     private static void move(Queue<Stone> queue, int x, int y, int z) {
+        if (x == y)
+            return;
+
         int small = Math.min(x, y);
         int big = Math.max(x, y);
         int newX = small + small;
