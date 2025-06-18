@@ -24,9 +24,9 @@ public class Baekjoon14728 {
 
         int[] dp = new int[T + 1];
 
-        for (int i = 0; i < N; i++) {
-            for (int j = T; j >= K[i]; j--) {
-                dp[j] = Math.max(dp[j], dp[j - K[i]] + S[i]);
+        for (int subject = 0; subject < N; subject++) {
+            for (int value = T; value >= K[subject]; value--) {
+                dp[value] = Math.max(dp[value], dp[value - K[subject]] + S[subject]);
             }
         }
         
