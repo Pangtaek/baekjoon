@@ -6,44 +6,39 @@ import java.io.OutputStreamWriter;
 import java.util.Arrays;
 
 public class Baekjoon14501 {
-
-    private static class Work {
-        public int task;
-        public int pay;
-
-        public Work(int task, int pay) {
-            this.task = task;
-            this.pay = pay;
-        }
-    }
-
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
-        int N = Integer.parseInt(br.readLine()); // 일하는 기간
-        Work[] works = new Work[N + 2]; // day == N+1까지 처리 가능
-        int[] dp = new int[N + 2]; // dp[i]: i일 기준 최대 수익
+        int N = Integer.parseInt(br.readLine());
+        int[] T = new int[N + 1]; // 작업량
+        int[] P = new int[N + 1]; // 보수
 
-        for (int day = 1; day <= N; day++) {
+        for (int i = 1; i <= N; i++) {
             int[] tokens = Arrays.stream(br.readLine().split(" "))
                     .mapToInt(Integer::parseInt)
                     .toArray();
-            works[day] = new Work(tokens[0], tokens[1]);
+            T[i] = tokens[0];
+            P[i] = tokens[1];
         }
 
-        for (int day = 1; day <= N + 1; day++) {
-            dp[day] = Math.max(dp[day], dp[day - 1]); // 이전 날까지 수익 반영
+        int[] dp = new int[N + 2]; // N+1일(퇴사일)까지 저장
 
-            if (day <= N) {
-                int nextDay = day + works[day].task;
-                if (nextDay <= N + 1) {
-                    dp[nextDay] = Math.max(dp[nextDay], dp[day] + works[day].pay);
-                }
+        for (int day = 1; day <= N; day++) {
+            dp[day] = Math.max(dp[day], dp[day - 1]); // 수익 유지
+
+            int endDay = day + T[day];
+            if (endDay <= N + 1) {
+                dp[endDay] = Math.max(dp[endDay], dp[day] + P[day]);
             }
         }
 
-        bw.write(Integer.toString(dp[N + 1]));
+        int answer = 0;
+        for (int i = 1; i <= N + 1; i++) {
+            answer = Math.max(answer, dp[i]);
+        }
+
+        bw.write(Integer.toString(answer));
         bw.newLine();
 
         bw.flush();
