@@ -30,19 +30,16 @@ public class Baekjoon15817 {
 
         // 3. 파이프 종류별로 처리
         for (int pipe = 0; pipe < N; pipe++) {
-            int length = L[pipe];
-            int count = C[pipe];
-
-            for (int x = X; x >= 0; x--) {
-                if (dp[x] == 0)
+            for (int length = X; length >= 0; length--) {
+                if (dp[length] == 0)
                     continue;
 
-                for (int c = 1; c <= count; c++) {
-                    int next = x + length * c;
+                for (int amount = 1; amount <= C[pipe]; amount++) {
+                    int next = length + L[pipe] * amount;
                     if (next > X)
                         break;
 
-                    dp[next] += dp[x];
+                    dp[next] += dp[length];
                 }
             }
         }
