@@ -18,15 +18,14 @@ public class Baekjoon4781 {
             int N = Integer.parseInt(tokens[0]); // 사탕 종류 수
             float M = Float.parseFloat(tokens[1]); // 가진 돈
 
-            int money = (int) (M * 100 + 0.5); // 실수 오차 보정
+            int money = floatToInt(M);
             int[] C = new int[N]; // 칼로리
             int[] P = new int[N]; // 가격 (정수로 변환)
 
             for (int i = 0; i < N; i++) {
                 tokens = br.readLine().split(" ");
                 C[i] = Integer.parseInt(tokens[0]);
-                float price = Float.parseFloat(tokens[1]);
-                P[i] = (int) (price * 100 + 0.5); // 실수 오차 보정
+                P[i] = floatToInt(Float.parseFloat(tokens[1]));
             }
 
             int[] dp = new int[money + 1];
@@ -44,5 +43,9 @@ public class Baekjoon4781 {
         bw.flush();
         bw.close();
         br.close();
+    }
+
+    private static int floatToInt(float num) {
+        return (int) (num * 100 + 0.5);
     }
 }
