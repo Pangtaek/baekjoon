@@ -22,10 +22,10 @@ public class Baekjoon4781 {
             int[] C = new int[N]; // 칼로리
             int[] P = new int[N]; // 가격 (정수로 변환)
 
-            for (int i = 0; i < N; i++) {
+            for (int candy = 0; candy < N; candy++) {
                 tokens = br.readLine().split(" ");
-                C[i] = Integer.parseInt(tokens[0]);
-                P[i] = floatToInt(Float.parseFloat(tokens[1]));
+                C[candy] = Integer.parseInt(tokens[0]);
+                P[candy] = floatToInt(Float.parseFloat(tokens[1]));
             }
 
             int[] dp = new int[money + 1];
