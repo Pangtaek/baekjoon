@@ -88,6 +88,7 @@ public class Baekjoon16933 {
 
                 if (nx < 0 || nx >= M || ny < 0 || ny >= N)
                     continue;
+                    
                 if (visited[ny][nx] <= cur.wallsBroken)
                     continue;
 
