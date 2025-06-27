@@ -11,7 +11,6 @@ public class Baekjoon16933 {
 
     private static final int[][] DIRECTIONS = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 } }; // 상, 하, 좌, 우
 
-    // input
     private static int N, M, K;
     private static int[][] map;
 
@@ -27,7 +26,7 @@ public class Baekjoon16933 {
 
     private static class State extends Position2D {
         private int count; // 이동 횟수
-        private int wallsBroken; // 부순 벽 수
+        private int wallsBroken; // 부순 벽의 수
         private boolean isDay; // 낮 여부
 
         private State(int x, int y, int count, int wallsBroken, boolean isDay) {
@@ -65,14 +64,13 @@ public class Baekjoon16933 {
     }
 
     private static int bfs() {
-        int[][] visited = new int[N][M]; // 해당 좌표까지 부순 벽의 최소 수
+        int[][] visited = new int[N][M]; // visited[y][x] = 최소 wallsBroken
         for (int y = 0; y < N; y++) {
             Arrays.fill(visited[y], Integer.MAX_VALUE);
         }
 
         Queue<State> queue = new ArrayDeque<>();
-        queue.offer(new State(0, 0, 1, 0, true)); // 시작은 낮, 이동 횟수 1
-
+        queue.offer(new State(0, 0, 1, 0, true)); // 시작 위치, 낮, 이동 1, 부순 벽 0
         visited[0][0] = 0;
 
         while (!queue.isEmpty()) {
@@ -88,7 +86,6 @@ public class Baekjoon16933 {
 
                 if (nx < 0 || nx >= M || ny < 0 || ny >= N)
                     continue;
-                    
                 if (visited[ny][nx] <= cur.wallsBroken)
                     continue;
 
@@ -100,7 +97,8 @@ public class Baekjoon16933 {
                         visited[ny][nx] = cur.wallsBroken + 1;
                         queue.offer(new State(nx, ny, cur.count + 1, cur.wallsBroken + 1, false));
                     } else {
-                        queue.offer(new State(cur.x, cur.y, cur.count + 1, cur.wallsBroken, true)); // 제자리 대기
+                        // 밤이면 제자리 대기
+                        queue.offer(new State(cur.x, cur.y, cur.count + 1, cur.wallsBroken, true));
                     }
                 } else { // 빈 칸
                     visited[ny][nx] = cur.wallsBroken;
