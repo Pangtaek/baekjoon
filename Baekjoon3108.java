@@ -41,7 +41,7 @@ public class Baekjoon3108 {
         int bBottom = b.y1;
         int bTop = b.y2;
 
-        if (aLeft > bRight || aRight < bLeft || aTop < bBottom || aBottom > bTop ||
+        if (aLeft > bRight || aRight < bLeft || aTop < bBottom || aBottom > bTop || // 겹치지 않는 경우
                 (aLeft < bLeft && aRight > bRight && aTop > bTop && aBottom < bBottom) || // a가 b를 내포
                 (bLeft < aLeft && bRight > aRight && bTop > aTop && bBottom < aBottom)) { // b가 a를 내포
             return false;
