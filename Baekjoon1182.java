@@ -7,50 +7,50 @@ import java.util.Arrays;
 
 public class Baekjoon1182 {
 
-    static int N;
-    static int S;
-    static int[] A;
-    static int count = 0;
+    private static int N;
+    private static int S;
+    private static int[] A;
+
+    private static int answer = 0;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
-        int[] tokens = Arrays.stream(br.readLine().split(" "))
+        int[] tokens = Arrays.stream(br.readLine().split("\\s+"))
                 .mapToInt(Integer::parseInt)
                 .toArray();
         N = tokens[0];
         S = tokens[1];
-        A = Arrays.stream(br.readLine().split(" "))
+
+        A = Arrays.stream(br.readLine().split("\\s+"))
                 .mapToInt(Integer::parseInt)
                 .toArray();
 
-        dfs(0, 0); // 부분수열 탐색 시작
+        dfs(0, 0);
 
-        // S가 0인 경우, 공집합도 포함되므로 제외해야 함
+        // 공집합 제외
         if (S == 0)
-            count--;
+            answer--;
 
-        bw.write(Integer.toString(count));
+        bw.write(Integer.toString(answer));
         bw.newLine();
-
         bw.flush();
-        bw.close();
         br.close();
+        bw.close();
     }
 
-    private static void dfs(int index, int sum) {
-        if (index == N) {
-            if (sum == S) {
-                count++;
-            }
+    private static void dfs(int idx, int sum) {
+        if (idx == N) {
+            if (sum == S)
+                answer++;
             return;
         }
 
-        // 현재 index 값을 포함
-        dfs(index + 1, sum + A[index]);
+        // 현재 원소 포함
+        dfs(idx + 1, sum + A[idx]);
 
-        // 현재 index 값을 포함하지 않음
-        dfs(index + 1, sum);
+        // 현재 원소 미포함
+        dfs(idx + 1, sum);
     }
 }
