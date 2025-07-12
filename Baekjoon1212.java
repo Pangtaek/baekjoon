@@ -18,9 +18,9 @@ public class Baekjoon1212 {
             String binary = Integer.toBinaryString(digit);
 
             if (i == 0) {
-                sb.append(binary); // 첫 자릿수는 앞의 0을 생략
+                sb.append(binary);
             } else {
-                sb.append(String.format("%3s", binary).replace(' ', '0')); // 나머지는 3자리 채우기
+                sb.append("000".substring(binary.length())).append(binary);
             }
         }
 
