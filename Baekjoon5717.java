@@ -11,7 +11,7 @@ public class Baekjoon5717 {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
-        int[] tokens;
+        int[] tokens = null;
         while (true) {
             tokens = Arrays.stream(br.readLine().split(" "))
                     .mapToInt(Integer::parseInt)
