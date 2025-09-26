@@ -21,24 +21,25 @@ public class Baekjoon1541 {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
              BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out))) {
             
+            int sum = 0;
             String[] input = br.readLine().split("-");
-            
-            // 첫 번째 부분 (양수로 더하기)
-            String[] firstPart = input[0].split("\\+");
-            int result = 0;
-            for (String num : firstPart) {
-                result += Integer.parseInt(num);
-            }
-            
-            // 나머지 부분들 (빼기)
-            for (int i = 1; i < input.length; i++) {
-                String[] parts = input[i].split("\\+");
-                for (String num : parts) {
-                    result -= Integer.parseInt(num);
+
+            for (int i = 0; i < input.length; i++) {
+                int partSum = 0;
+                String[] numbers = input[i].split("\\+");
+                
+                for (String number : numbers) {
+                    partSum += Integer.parseInt(number);
+                }
+                
+                if (i == 0) {
+                    sum += partSum; // 첫 번째 부분은 더하기
+                } else {
+                    sum -= partSum; // 이후 부분은 빼기
                 }
             }
             
-            bw.write(String.valueOf(result));
+            bw.write(String.valueOf(sum));
             bw.flush();
         }
     }
