@@ -1,105 +1,161 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayDeque;
 import java.util.Arrays;
-import java.util.Queue;
 
+/*
+ * 백준 17836 공주님을 구해라!
+ * https://www.acmicpc.net/problem/17836
+ * 풀이법: BFS
+ */
 public class Baekjoon17836 {
 
-    public static int N, M, T;
-    public static int[][] map;
+    private static final int[][] DIRECTIONS = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
 
-    // 상, 하, 좌, 우
-    public static final int[][] dxdy = {
-            { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 }
-    };
+    private static int N, M, T;
+    private static int[][] map;
+    private static int[][][] visited; // 3차원 배열로 변경
 
-    public static class Node {
-        public int x;
-        public int y;
-        public int time;
-        public boolean hasGram;
+    public static void main(String[] args) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out))) {
 
-        public Node(
-                int x,
-                int y,
-                int time,
-                boolean hasGram) {
-            this.x = x;
-            this.y = y;
-            this.time = time;
-            this.hasGram = hasGram;
-        }
-    }
+            int[] input = Arrays.stream(br.readLine().split(" "))
+                    .mapToInt(Integer::parseInt)
+                    .toArray();
+            N = input[0];
+            M = input[1];
+            T = input[2];
 
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int[] tokens = Arrays.stream(br.readLine().split(" "))
-                .mapToInt(Integer::parseInt)
-                .toArray();
+            map = new int[N][M];
 
-        N = tokens[0];
-        M = tokens[1];
-        T = tokens[2];
-
-        map = new int[N][M];
-        for (int y = 0; y < N; y++) {
-            String[] line = br.readLine().split(" ");
-            for (int x = 0; x < M; x++) {
-                map[y][x] = Integer.parseInt(line[x]);
+            for (int row = 0; row < N; row++) {
+                map[row] = Arrays.stream(br.readLine().split(" "))
+                        .mapToInt(Integer::parseInt)
+                        .toArray();
             }
-        }
 
-        int result = bfsWithStateTracking();
-        System.out.println(result != -1 ? result : "Fail");
+            // 3차원 visited 배열 초기화 [x][y][검보유여부]
+            visited = new int[N][M][2];
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < M; j++) {
+                    Arrays.fill(visited[i][j], Integer.MAX_VALUE);
+                }
+            }
+
+            int result = bfs();
+
+            if (result == -1 || result > T) {
+                bw.write("Fail");
+            } else {
+                bw.write(String.valueOf(result));
+            }
+            bw.newLine();
+            bw.flush();
+        } catch (IOException e) {
+            System.out.println("IOException");
+        }
     }
 
-    public static int bfsWithStateTracking() {
-        int[][][] visited = new int[N][M][2]; // [y][x][0]: 무검, [y][x][1]: 검 있음
-        for (int[][] layer : visited)
-            for (int[] row : layer)
-                Arrays.fill(row, -1);
-
-        Queue<Node> queue = new ArrayDeque<>();
-        queue.offer(new Node(0, 0, 0, false));
-        visited[0][0][0] = 0;
+    private static int bfs() {
+        ArrayDeque<Hero> queue = new ArrayDeque<>();
+        queue.offer(new Hero(0, 0, 0, false));
+        visited[0][0][0] = 0; // 검 없는 상태로 시작
 
         while (!queue.isEmpty()) {
-            Node curr = queue.poll();
+            Hero current = queue.poll();
+            int x = current.getX();
+            int y = current.getY();
+            int time = current.getTime();
+            boolean hasSword = current.isHasSword();
 
-            // 시간 초과
-            if (curr.time > T)
+            // 시간 제한 초과 시 스킵
+            if (time > T) {
                 continue;
-
-            // 도착지 도달
-            if (curr.x == M - 1 && curr.y == N - 1) {
-                return curr.time;
             }
 
-            for (int d = 0; d < 4; d++) {
-                int nx = curr.x + dxdy[d][0];
-                int ny = curr.y + dxdy[d][1];
+            // 목표 지점 도달
+            if (x == N - 1 && y == M - 1) {
+                return time;
+            }
 
-                if (nx < 0 || nx >= M || ny < 0 || ny >= N)
+            for (int[] direction : DIRECTIONS) {
+                int nextX = x + direction[0];
+                int nextY = y + direction[1];
+                int nextTime = time + 1;
+
+                if (!isInRange(nextX, nextY) || nextTime > T) {
                     continue;
+                }
 
-                int nextHasGram = curr.hasGram ? 1 : 0;
-                if (visited[ny][nx][nextHasGram] != -1)
-                    continue;
+                // 검을 가진 상태: 모든 칸 이동 가능
+                if (hasSword) {
+                    if (visited[nextX][nextY][1] > nextTime) {
+                        visited[nextX][nextY][1] = nextTime;
+                        queue.offer(new Hero(nextX, nextY, nextTime, true));
+                    }
+                }
+                // 검을 가지지 않은 상태: 벽 통과 불가
+                else {
+                    if (map[nextX][nextY] != 1) { // 벽이 아닌 경우만
+                        boolean newSword = (map[nextX][nextY] == 2); // 검 획득 여부
+                        int swordState = newSword ? 1 : 0;
 
-                int nextPos = map[ny][nx];
-
-                if (nextPos == 1 && !curr.hasGram)
-                    continue; // 벽 + 무검 → 통과 불가
-
-                boolean nextHasGramState = curr.hasGram || (nextPos == 2);
-
-                visited[ny][nx][nextHasGramState ? 1 : 0] = curr.time + 1;
-                queue.offer(new Node(nx, ny, curr.time + 1, nextHasGramState));
+                        if (visited[nextX][nextY][swordState] > nextTime) {
+                            visited[nextX][nextY][swordState] = nextTime;
+                            queue.offer(new Hero(nextX, nextY, nextTime, newSword));
+                        }
+                    }
+                }
             }
         }
 
-        return -1; // 도달 실패
+        // 목표 지점에 도달한 최소 시간 반환
+        int result = Math.min(visited[N - 1][M - 1][0], visited[N - 1][M - 1][1]);
+        return result == Integer.MAX_VALUE ? -1 : result;
+    }
+
+    private static boolean isInRange(int x, int y) {
+        return x >= 0 && x < N && y >= 0 && y < M;
+    }
+
+    private static class Position2D {
+        private int x;
+        private int y;
+
+        public Position2D(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public int getX() {
+            return x;
+        }
+
+        public int getY() {
+            return y;
+        }
+    }
+
+    private static class Hero extends Position2D {
+        private int time;
+        private boolean hasSword;
+
+        public Hero(int x, int y, int time, boolean hasSword) {
+            super(x, y);
+            this.time = time;
+            this.hasSword = hasSword;
+        }
+
+        public int getTime() {
+            return time;
+        }
+
+        public boolean isHasSword() {
+            return hasSword;
+        }
     }
 }
