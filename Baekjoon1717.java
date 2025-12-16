@@ -1,47 +1,60 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
+import java.io.OutputStreamWriter;
 
 public class Baekjoon1717 {
-    public static int[] parent;
 
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    public static void main(String[] args) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out))) {
 
-        int[] tokens = Arrays.stream(br.readLine().split("\\s+")).mapToInt(Integer::parseInt).toArray();
-        int n = tokens[0];
-        int m = tokens[1];
+            String[] tokens = br.readLine().split("\\s+");
+            int n = Integer.parseInt(tokens[0]); // 집합의 개수(0~n)
+            int m = Integer.parseInt(tokens[1]); // 연산의 개수
 
-        parent = new int[n + 1];
-        for (int i = 0; i <= n; i++)
-            parent[i] = i; // 자기 자신이 부모
+            int[] parent = new int[n + 1];
 
-        while (m-- > 0) {
-            tokens = Arrays.stream(br.readLine().split("\\s+")).mapToInt(Integer::parseInt).toArray();
-            int op = tokens[0];
-            int a = tokens[1];
-            int b = tokens[2];
-
-            if (op == 0) {
-                union(a, b);
-            } else {
-                System.out.println(find(a) == find(b) ? "YES" : "NO");
+            for (int i = 0; i <= n; i++) {
+                parent[i] = i;
             }
+
+            for (int i = 0; i < m; i++) {
+                tokens = br.readLine().split("\\s+");
+                int option = Integer.parseInt(tokens[0]);
+                int a = Integer.parseInt(tokens[1]);
+                int b = Integer.parseInt(tokens[2]);
+
+                if (option == 1) {
+                    if (find(a, parent) == find(b, parent)) {
+                        bw.write("YES\n");
+                    } else {
+                        bw.write("NO\n");
+                    }
+                } else if (option == 0) {
+                    union(a, b, parent);
+                }
+            }
+
+            bw.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    public static int find(int x) {
-        if (parent[x] != x)
-            parent[x] = find(parent[x]); // 경로 압축
-        return parent[x];
+    private static int find(int x, int[] parent) {
+        if (parent[x] == x)
+            return x;
+        return parent[x] = find(parent[x], parent);
     }
 
-    public static void union(int a, int b) {
-        int rootA = find(a);
-        int rootB = find(b);
+    private static void union(int x, int y, int[] parent) {
+        int rootX = find(x, parent);
+        int rootY = find(y, parent);
 
-        if (rootA != rootB)
-            parent[rootB] = rootA;
+        if (rootX != rootY) {
+            parent[rootY] = rootX;
+        }
     }
 }
