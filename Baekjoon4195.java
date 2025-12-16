@@ -1,72 +1,84 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Baekjoon4195 {
 
-    public static Map<String, Integer> nameToId;
-    public static int[] parent;
-    public static int[] size;
-    public static int idCounter;
+    private static int[] parent;
+    private static int[] size;
 
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int TC = Integer.parseInt(br.readLine()); // 테스트 케이스 수
+    public static void main(String[] args) {
 
-        for (int test = 0; test < TC; test++) {
-            int F = Integer.parseInt(br.readLine()); // 친구 관계 수
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out))) {
 
-            // 전역변수 초기화
-            nameToId = new HashMap<>();
-            parent = new int[F * 2];
-            size = new int[F * 2];
-            idCounter = 0;
+            int testcase = Integer.parseInt(br.readLine());
 
-            for (int i = 0; i < F; i++) {
-                String[] tokens = br.readLine().split(" ");
-                String name1 = tokens[0];
-                String name2 = tokens[1];
+            while (testcase-- > 0) {
+                int F = Integer.parseInt(br.readLine());
 
-                int id1 = getId(name1);
-                int id2 = getId(name2);
+                // 최대 F개의 친구 관계 → 등장하는 사람 수는 최대 2F
+                parent = new int[2 * F];
+                size = new int[2 * F];
+                for (int i = 0; i < 2 * F; i++) {
+                    parent[i] = i;
+                    size[i] = 1;
+                }
 
-                union(id1, id2);
+                Map<String, Integer> indexByName = new HashMap<>();
+                int index = 0;
 
-                System.out.println(size[find(id1)]);
+                for (int f = 0; f < F; f++) {
+                    String[] tokens = br.readLine().split("\\s+");
+                    String name1 = tokens[0];
+                    String name2 = tokens[1];
+
+                    // 이름을 정수 인덱스로 매핑
+                    if (!indexByName.containsKey(name1)) {
+                        indexByName.put(name1, index++);
+                    }
+                    if (!indexByName.containsKey(name2)) {
+                        indexByName.put(name2, index++);
+                    }
+
+                    int a = indexByName.get(name1);
+                    int b = indexByName.get(name2);
+
+                    int networkSize = union(a, b);
+                    bw.write(String.valueOf(networkSize));
+                    bw.write("\n");
+                }
             }
+
+            bw.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
-
-    public static void union(int a, int b) {
-        int rootA = find(a);
-        int rootB = find(b);
-
-        if (rootA != rootB) {
-            parent[rootB] = rootA;
-            size[rootA] += size[rootB];
+    
+    private static int find(int x) {
+        if (parent[x] == x) {
+            return x;
         }
+        return parent[x] = find(parent[x]); // 경로 압축
     }
 
-    public static int find(int x) {
-        if (parent[x] != x) {
-            parent[x] = find(parent[x]);
+    private static int union(int x, int y) {
+        int rootX = find(x);
+        int rootY = find(y);
+
+        if (rootX == rootY) {
+            return size[rootX];
         }
 
-        return parent[x];
-    }
+        // 한쪽으로 합치기 (크기 기준으로 합쳐도 되고, 단순 합쳐도 됨)
+        parent[rootY] = rootX;
+        size[rootX] += size[rootY];
 
-    // 이름은 ID로 매핑하고 초기화
-    public static int getId(String name) {
-        if (!nameToId.containsKey(name)) {
-            nameToId.put(name, idCounter);
-            parent[idCounter] = idCounter;
-            size[idCounter] = 1;
-
-            return idCounter++;
-        }
-
-        return nameToId.get(name);
+        return size[rootX];
     }
 }
