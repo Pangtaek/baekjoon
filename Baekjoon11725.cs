@@ -1,22 +1,40 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace Baekjoon
 {
-    private static List<int>[] tree;
-    private static int[] parents;
-    private static bool[] visited;
-
     internal class Baekjoon11725
     {
-        private void Solve()
-        {
-            int N = int.Parse(Console.ReadLine());
+        private static List<int>[] tree;
+        private static int[] parents;
+        private static bool[] visited;
 
+        internal void Solve()
+        {
+            StreamReader reader = new StreamReader(new BufferedStream(Console.OpenStandardInput()));
+
+            int N = int.Parse(reader.ReadLine());
+            Init(N);
+
+            for (int i = 0; i < N - 1; i++)
+            {
+                int[] tokens = Array.ConvertAll(reader.ReadLine().Split(' '), element => int.Parse(element));
+                tree[tokens[0]].Add(tokens[1]);
+                tree[tokens[1]].Add(tokens[0]);
+            }
+
+            Run();
+        }
+
+        private static void Run()
+        {
+            Dfs(1);
+            PrintAnswer();
+        }
+
+        private static void Init(int N)
+        {
             tree = new List<int>[N + 1];
             parents = new int[N + 1];
             visited = new bool[N + 1];
@@ -25,41 +43,31 @@ namespace Baekjoon
             {
                 tree[i] = new List<int>();
             }
-
-            for (int i = 0; i < N - 1; i++)
-            {
-                int[] tokens = Array.ConvertAll(Console.ReadLine().Split(' '), element => int.Parse(element));
-                tree[tokens[0]].Add(tokens[1]);
-                tree[tokens[1]].Add(tokens[0]);
-            }
-
-            dfs(1);
-
-            printAnswer(N);
         }
 
-        private static void dfs(int node)
+        private static void Dfs(int node)
         {
             visited[node] = true;
 
             foreach (int neighbor in tree[node])
             {
-                if (!visited[neighbor] && neighbor != 0)
+                if (neighbor != 0 && !visited[neighbor])
                 {
                     parents[neighbor] = node;
-                    dfs(neighbor);
+                    Dfs(neighbor);
                 }
             }
         }
 
-        private static void printAnswer(int N)
+        private static void PrintAnswer()
         {
-            StringBuilder answer = new StringBuilder();
-            for (int i = 2; i <= N; i++)
+            StreamWriter writer = new StreamWriter(new BufferedStream(Console.OpenStandardOutput()));
+            for (int i = 2; i <= tree.Length; i++)
             {
-                answer.Append($"{parents[i]}\n");
+                writer.WriteLine($"{parents[i]}");
             }
-            Console.Write(answer.ToString());
+
+            writer.Close();
         }
     }
 }
