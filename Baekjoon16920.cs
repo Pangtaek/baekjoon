@@ -28,10 +28,10 @@ namespace Baekjoon
             matrix = new char[N, M];
             scores = new int[P + 1];
 
-            List<int[]>[] startPoint = new List<int[]>[P + 1];
+            List<int[]>[] startPoints = new List<int[]>[P + 1];
             for (int p = 1; p <= P; p++)
             {
-                startPoint[p] = new List<int[]>();
+                startPoints[p] = new List<int[]>();
             }
 
             for (int row = 0; row < N; row++)
@@ -45,13 +45,13 @@ namespace Baekjoon
                     int playerId = value - '0';
                     if (1 <= playerId && playerId <= 9)
                     {
-                        startPoint[playerId].Add(new int[] { column, row }); // (x, y)
+                        startPoints[playerId].Add(new int[] { column, row }); // (x, y)
                         scores[playerId]++; // 성 개수만큼 점수 증가
                     }
                 }
             }
 
-            Bfs(startPoint);
+            Bfs(startPoints);
 
             // 점수 출력
             for (int p = 1; p <= P; p++)
@@ -63,16 +63,13 @@ namespace Baekjoon
             writer.Close();
         }
 
-        private void Bfs(List<int[]>[] startPoint)
+        private void Bfs(List<int[]>[] startPoints)
         {
             Queue<(int x, int y)>[] queues = new Queue<(int x, int y)>[P + 1];
             for (int p = 1; p <= P; p++)
-                queues[p] = new Queue<(int x, int y)>();
-
-            // 초기 성들 큐에 넣기
-            for (int p = 1; p <= P; p++)
             {
-                foreach (var castle in startPoint[p])
+                queues[p] = new Queue<(int x, int y)>();
+                foreach (var castle in startPoints[p])
                 {
                     queues[p].Enqueue((castle[0], castle[1]));
                 }
@@ -85,12 +82,13 @@ namespace Baekjoon
                 // 각 플레이어 순서대로 턴 진행
                 for (int p = 1; p <= P; p++)
                 {
-                    int speed = S[p - 1];
                     if (queues[p].Count == 0)
+                    {
                         continue;
+                    }
 
                     // S[p] 레벨까지만 확장 (턴당 최대 이동 횟수)
-                    for (int step = 0; step < speed; step++)
+                    for (int step = 0; step < S[p - 1]; step++)
                     {
                         int qSize = queues[p].Count;
                         if (qSize == 0)
@@ -98,8 +96,8 @@ namespace Baekjoon
                             break;
                         }
 
-                            // 현재 레벨 큐 크기만큼만 처리
-                            for (int i = 0; i < qSize; i++)
+                        // 현재 레벨 큐 크기만큼만 처리
+                        for (int i = 0; i < qSize; i++)
                         {
                             var current = queues[p].Dequeue();
                             int x = current.x;
