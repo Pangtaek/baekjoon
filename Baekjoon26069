@@ -1,0 +1,59 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+
+namespace Baekjoon
+{
+    internal class Baekjoon26069
+    {
+        public void Solve()
+        {
+            var reader = new StreamReader(new BufferedStream(Console.OpenStandardInput()));
+            var writer = new StreamWriter(new BufferedStream(Console.OpenStandardOutput()));
+
+            int N = int.Parse(reader.ReadLine());
+            var nameSet = new HashSet<string>();
+            bool isMet = false;
+
+            nameSet.Add("ChongChong");
+
+            for (int i = 0; i < N; i++)
+            {
+                string[] tokens = reader.ReadLine().Split();
+
+                if (!isMet) // 총총이를 만나지 못한 경우
+                {
+                    if (tokens[0] == "ChongChong" || tokens[1] == "ChongChong")
+                    {
+                        isMet = true;
+                    }
+                }
+
+                if (isMet) // 총총이를 이전에 만난 경우
+                {
+                    // 앞사람이 춤추고 있는 경우
+                    if (nameSet.Contains(tokens[0]))
+                    {
+                        // 뒷사람이 춤을 추지 않는다면, 춤을 추게한다.
+                        if (nameSet.Add(tokens[1]))
+                        {
+                        }
+                    }
+                    // 앞사람은 춤을 추지 않지만, 뒷사람은 춤을 추는 경우
+                    else if (nameSet.Contains(tokens[1]))
+                    {
+                        // 앞사람을 춤을 추게한다.
+                        if (nameSet.Add(tokens[0]))
+                        {
+                        }
+                    }
+                }
+            }
+
+            writer.WriteLine(nameSet.Count);
+
+            writer.Close();
+            reader.Close();
+        }
+    }
+}
