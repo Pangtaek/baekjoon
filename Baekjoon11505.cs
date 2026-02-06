@@ -1,9 +1,9 @@
 using System;
 using System.IO;
 
-class Program
+internal class Baekjoon11505
 {
-    static void Main()
+    public void Solve()
     {
         using (var reader = new StreamReader(new BufferedStream(Console.OpenStandardInput())))
         using (var writer = new StreamWriter(new BufferedStream(Console.OpenStandardOutput())))
